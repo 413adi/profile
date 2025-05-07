@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive PDF Resume</title>
+    <title>Aditya Krishna Resume</title>
     <style>
         * {
             margin: 0;
@@ -72,18 +72,24 @@
         
         .hotspot {
             position: absolute;
-            background-color: rgba(0, 123, 255, 0);
-            border: 2px dashed rgba(0, 123, 255, 0);
+            background-color: rgba(0, 123, 255, 0.08); /* Light blue with slight visibility */
+            border: 2px dashed rgba(0, 123, 255, 0.0); /* Light dashed border */
             border-radius: 4px;
             cursor: pointer;
             transition: all 0.3s ease;
+            pointer-events: auto; /* This ensures they remain clickable */
         }
-        
+
         .hotspot:hover {
-            background-color: rgba(0, 123, 255, 0.1);
-            border: 2px dashed rgba(0, 123, 255, 0.5);
+            background-color: rgba(0, 123, 255, 0.2); /* More visible on hover */
+            border: 2px dashed rgba(0, 123, 255, 0); /* More visible border on hover */
         }
         
+        .hotspot:active {
+            background-color: rgba(0, 123, 255, 0.25); /* Even more visible when clicked */
+            border: 2px solid rgba(0, 123, 255, 0.6); /* Solid border when clicked */
+        }
+
         .modal {
             position: fixed;
             top: 0;
@@ -109,13 +115,14 @@
             background-color: white;
             padding: 2rem;
             border-radius: 8px;
-            max-width: 600px;
+            max-width: 700px;
             width: 90%;
-            max-height: 80vh;
+            max-height: 200vh;
             overflow-y: auto;
             position: relative;
             transform: scale(0.8);
             transition: transform 0.3s ease;
+            font-family: "Times New Roman", Times, serif; /* Added Times New Roman font */
         }
         
         .modal.active .modal-content {
@@ -156,6 +163,33 @@
             margin-bottom: 0.5rem;
         }
         
+        #linkedin {
+            background-color: transparent;
+            border: black;
+        }
+
+        #linkedin:hover {
+            background-color: rgba(0, 123, 255, 0.1); /* Optional: slight highlight on hover */
+        }
+
+        #email {
+            background-color: transparent;
+            border: none;
+        }
+
+        #email:hover {
+            background-color: rgba(0, 123, 255, 0.1); /* Optional: slight highlight on hover */
+        }
+        
+        #location {
+            background-color: transparent;
+            border: none;
+        }
+
+        #location:hover {
+            background-color: rgba(0, 123, 255, 0.1); /* Optional: slight highlight on hover */
+        }
+
         .gallery {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -198,6 +232,37 @@
             visibility: visible;
         }
         
+        .single-image-container {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .modal-img {
+            /* Maximum dimensions - will constrain both width and height */
+            max-width: 90%; /* Percentage of the modal-content width */
+            max-height: 300px; /* Fixed maximum height */
+            
+            /* Make sure image maintains aspect ratio */
+            width: auto;
+            height: auto;
+            
+            /* Styling */
+            object-fit: contain; /* Ensures entire image is visible */
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-description {
+            margin-top: 10px;
+            color: #666;
+            text-align: center;
+            width: 90%;
+            font-style: normal; /* Changed from italic to normal */
+        }
+
         /* For responsiveness - adjust hotspot positions based on screen size */
         @media (max-width: 768px) {
             .container {
@@ -264,15 +329,6 @@
             z-index: 10;
         }
 
-        .hotspot {
-            position: absolute;
-            background-color: rgba(0, 123, 255, 0);
-            border: 2px dashed rgba(0, 123, 255, 0);
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            pointer-events: auto; /* Keep this as auto to make hotspots clickable */
-        }
     </style>
 </head>
 <body>
@@ -282,264 +338,195 @@
             
             <!-- Hotspot wrapper remains the same -->
             <div class="hotspot-wrapper" id="hotspotWrapper">
-                <div class="hotspot" id="education">
-                    <div class="tooltip">Click to see education details</div>
+                <div class="hotspot" id="linkedin">
+                </div>
+
+                <div class="hotspot" id="location">
+                </div>
+
+                <div class="hotspot" id="email">
                 </div>
                 
                 <div class="hotspot" id="experience1">
-                    <div class="tooltip">Click to see job details</div>
                 </div>
                 
                 <div class="hotspot" id="experience2">
-                    <div class="tooltip">Click to see job details</div>
+                </div>
+
+                <div class="hotspot" id="experience3">
+                </div>
+
+                <div class="hotspot" id="experience4">
+                </div>
+
+                <div class="hotspot" id="experience5">
+                </div>
+
+                <div class="hotspot" id="experience6">
+                </div>
+
+                <div class="hotspot" id="experience7">
+                </div>
+
+                <div class="hotspot" id="experience8">
+                </div>
+
+                <div class="hotspot" id="experience9">
+                </div>
+
+                <div class="hotspot" id="experience10">
                 </div>
                 
-                <div class="hotspot" id="skills">
-                    <div class="tooltip">Click to see skills details</div>
-                </div>
-                
-                <div class="hotspot" id="projects">
-                    <div class="tooltip">Click to see project details</div>
-                </div>
-                
-                <div class="hotspot" id="contact">
-                    <div class="tooltip">Click to send a message</div>
-                </div>
             </div>
         </div>
     </div>
     
     <!-- Modal templates - they will be populated with content when opened -->
-    <div class="modal" id="educationModal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h3 class="modal-title">Education</h3>
-            <div class="modal-body">
-                <p><strong>University of Technology</strong> (2014-2018)</p>
-                <p>Bachelor of Science in Computer Science</p>
-                <p>GPA: 3.8/4.0 - Graduated with honors</p>
-                <p>Relevant coursework:</p>
-                <ul>
-                    <li>Data Structures and Algorithms</li>
-                    <li>Web Development</li>
-                    <li>Database Management</li>
-                    <li>UI/UX Design Principles</li>
-                    <li>Software Engineering</li>
-                </ul>
-                <p>During my time at the university, I participated in multiple hackathons and was a member of the Computer Science Student Association. My capstone project focused on developing a machine learning algorithm for predicting student success based on early course engagement metrics.</p>
-            </div>
-        </div>
+    <div class="modal" id="linkedinModal"></div>
+    </div>
+
+    <div class="modal" id="locationModal" style="display: none;"></div>
     </div>
     
+    <div class="modal" id="emailModal" style="display: none;"></div>
+    </div>
+
     <div class="modal" id="experience1Modal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
-            <h3 class="modal-title">Senior Front-end Developer</h3>
             <div class="modal-body">
-                <p><strong>Tech Solutions Inc.</strong> (Jan 2023 - Present)</p>
-                <p>As a Senior Front-end Developer, I lead a team of 5 developers working on various client projects. My responsibilities include:</p>
-                <ul>
-                    <li>Architecting front-end solutions for enterprise clients</li>
-                    <li>Implementing responsive design principles across all company websites</li>
-                    <li>Optimizing application performance (reduced load time by 40%)</li>
-                    <li>Collaborating with UX designers to implement intuitive user interfaces</li>
-                    <li>Mentoring junior developers and conducting code reviews</li>
-                </ul>
-                <p><strong>Key achievements:</strong></p>
-                <ul>
-                    <li>Led the complete redesign of our flagship client's e-commerce platform, resulting in a 25% increase in conversion rate</li>
-                    <li>Implemented a component library that reduced development time by 30%</li>
-                    <li>Introduced automated testing protocols that caught 95% of bugs before production</li>
-                </ul>
-                <div class="gallery">
-                    <img src="/api/placeholder/200/150" alt="Project Screenshot" class="gallery-img">
-                    <img src="/api/placeholder/200/150" alt="Project Screenshot" class="gallery-img">
-                    <img src="/api/placeholder/200/150" alt="Project Screenshot" class="gallery-img">
+                <div class="single-image-container">
+                    <img src="AcousticCrossTalkBaker.png" alt="Acoustic Cross Talk Phased Array" class="modal-img">
+                    <p class="image-description">Simulation tool showing the different paths the central beam of an acoustic signal can take from one element to others after multiple reflections within the pipe wall and between the pipe and the array head</p>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <div class="modal" id="experience2Modal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
-            <h3 class="modal-title">Web Developer</h3>
             <div class="modal-body">
-                <p><strong>Digital Innovations</strong> (Aug 2020 - Dec 2022)</p>
-                <p>As a Web Developer, I was responsible for implementing modern web technologies across various client projects. My duties included:</p>
-                <ul>
-                    <li>Building e-commerce platforms using React and Node.js</li>
-                    <li>Integrating payment gateways such as Stripe and PayPal</li>
-                    <li>Developing custom content management systems</li>
-                    <li>Optimizing website performance for mobile devices</li>
-                    <li>Creating comprehensive documentation for all projects</li>
-                </ul>
-                <p><strong>Key projects:</strong></p>
-                <ul>
-                    <li>Developed a custom e-commerce solution for a retail client with 50+ physical locations</li>
-                    <li>Created a content management system for a publishing company that managed 1000+ articles</li>
-                    <li>Implemented a booking system for a chain of fitness studios</li>
-                </ul>
-                <div class="gallery">
-                    <img src="/api/placeholder/200/150" alt="Project Screenshot" class="gallery-img">
-                    <img src="/api/placeholder/200/150" alt="Project Screenshot" class="gallery-img">
-                    <img src="/api/placeholder/200/150" alt="Project Screenshot" class="gallery-img">
+                <div class="single-image-container">
+                    <img src="DefectRecognitionBaker.png" alt="Defect detection and recognition" class="modal-img">
+                    <p class="image-description">Created an algorithm that detects defect signals from multiple reflections and avoids noise signals</p>
                 </div>
             </div>
         </div>
-    </div>
-    
-    <div class="modal" id="skillsModal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h3 class="modal-title">Skills & Expertise</h3>
-            <div class="modal-body">
-                <p><strong>Technical Skills:</strong></p>
-                <ul>
-                    <li><strong>Languages:</strong> HTML5, CSS3, JavaScript (ES6+), TypeScript, Python</li>
-                    <li><strong>Frameworks/Libraries:</strong> React, Vue.js, Angular, Node.js, Express</li>
-                    <li><strong>Tools:</strong> Git, Webpack, Docker, Jenkins, AWS</li>
-                    <li><strong>Design:</strong> Figma, Adobe XD, Responsive Design, CSS Animation</li>
-                    <li><strong>Testing:</strong> Jest, Mocha, Cypress, React Testing Library</li>
-                </ul>
-                <p><strong>Soft Skills:</strong></p>
-                <ul>
-                    <li>Team Leadership</li>
-                    <li>Project Management</li>
-                    <li>Client Communication</li>
-                    <li>Problem-solving</li>
-                    <li>Mentoring</li>
-                </ul>
-                <p><strong>Certifications:</strong></p>
-                <ul>
-                    <li>AWS Certified Developer – Associate</li>
-                    <li>Google Professional Cloud Developer</li>
-                    <li>Certified ScrumMaster (CSM)</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    
-    <div class="modal" id="projectsModal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h3 class="modal-title">Featured Projects</h3>
-            <div class="modal-body">
-                <div>
-                    <h4>E-commerce Platform</h4>
-                    <p>A fully functional e-commerce website with payment integration and inventory management.</p>
-                    <p><strong>Technologies:</strong> React, Node.js, MongoDB, Stripe API</p>
-                    <p><strong>Key Features:</strong></p>
-                    <ul>
-                        <li>User authentication and profiles</li>
-                        <li>Product search and filtering</li>
-                        <li>Shopping cart and wishlist</li>
-                        <li>Secure payment processing</li>
-                        <li>Order tracking and history</li>
-                    </ul>
-                    <div class="gallery">
-                        <img src="/api/placeholder/200/150" alt="Project Screenshot" class="gallery-img">
-                        <img src="/api/placeholder/200/150" alt="Project Screenshot" class="gallery-img">
-                    </div>
-                    <p><a href="#" target="_blank">View Demo</a> | <a href="#" target="_blank">GitHub Repository</a></p>
-                </div>
-                <hr style="margin: 1.5rem 0;">
-                <div>
-                    <h4>Fitness Tracking App</h4>
-                    <p>A mobile application that helps users track their workouts and nutrition.</p>
-                    <p><strong>Technologies:</strong> React Native, Firebase, Redux</p>
-                    <p><strong>Key Features:</strong></p>
-                    <ul>
-                        <li>Workout planning and tracking</li>
-                        <li>Nutrition logging with calorie calculation</li>
-                        <li>Progress visualization with charts</li>
-                        <li>Social sharing and community features</li>
-                        <li>Integration with fitness wearables</li>
-                    </ul>
-                    <div class="gallery">
-                        <img src="/api/placeholder/200/150" alt="Project Screenshot" class="gallery-img">
-                        <img src="/api/placeholder/200/150" alt="Project Screenshot" class="gallery-img">
-                    </div>
-                    <p><a href="#" target="_blank">Case Study</a> | <a href="#" target="_blank">GitHub Repository</a></p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="modal" id="contactModal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h3 class="modal-title">Contact Me</h3>
-            <div class="modal-body">
-                <p>Feel free to reach out to me through any of the following channels:</p>
-                <ul>
-                    <li><strong>Email:</strong> <a href="mailto:your.email@example.com">your.email@example.com</a></li>
-                    <li><strong>Phone:</strong> (123) 456-7890</li>
-                    <li><strong>LinkedIn:</strong> <a href="https://linkedin.com/in/yourprofile" target="_blank">linkedin.com/in/yourprofile</a></li>
-                    <li><strong>GitHub:</strong> <a href="https://github.com/yourusername" target="_blank">github.com/yourusername</a></li>
-                    <li><strong>Portfolio:</strong> <a href="https://yourwebsite.com" target="_blank">yourwebsite.com</a></li>
-                </ul>
-                <form id="contactForm" style="margin-top: 1.5rem;">
-                    <div style="margin-bottom: 1rem;">
-                        <label for="name" style="display: block; margin-bottom: 0.5rem;">Name:</label>
-                        <input type="text" id="name" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
-                    </div>
-                    <div style="margin-bottom: 1rem;">
-                        <label for="email" style="display: block; margin-bottom: 0.5rem;">Email:</label>
-                        <input type="email" id="email" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
-                    </div>
-                    <div style="margin-bottom: 1rem;">
-                        <label for="message" style="display: block; margin-bottom: 0.5rem;">Message:</label>
-                        <textarea id="message" rows="5" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"></textarea>
-                    </div>
-                    <button type="submit" style="background-color: #0056b3; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 4px; cursor: pointer;">Send Message</button>
-                </form>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Control panel for editing mode (hidden by default) -->
-    <div class="control-panel" id="controlPanel">
-        <h4>Hotspot Editor</h4>
-        <select id="hotspotSelector">
-            <option value="education">Education</option>
-            <option value="experience1">Experience 1</option>
-            <option value="experience2">Experience 2</option>
-            <option value="skills">Skills</option>
-            <option value="projects">Projects</option>
-            <option value="contact">Contact</option>
-        </select>
-        <div>
-            <label for="hotspotX">X (%):</label>
-            <input type="number" id="hotspotX" min="0" max="100" step="0.1">
-        </div>
-        <div>
-            <label for="hotspotY">Y (%):</label>
-            <input type="number" id="hotspotY" min="0" max="100" step="0.1">
-        </div>
-        <div>
-            <label for="hotspotWidth">Width (%):</label>
-            <input type="number" id="hotspotWidth" min="0" max="100" step="0.1">
-        </div>
-        <div>
-            <label for="hotspotHeight">Height (%):</label>
-            <input type="number" id="hotspotHeight" min="0" max="100" step="0.1">
-        </div>
-        <button id="saveHotspot">Save Hotspot</button>
-        <button id="toggleEditMode">Exit Edit Mode</button>
     </div>
 
+    <div class="modal" id="experience3Modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-body">
+                <div class="single-image-container">
+                    <img src="ModelForGuidedWaves.png" alt="Model for guided waves" class="modal-img">
+                    <p class="image-description">Created a numerical simulation tool that can simulate guided wave propagation in cylinders based on computations in the Fourier and Laplace domains</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="experience4Modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-body">
+                <div class="single-image-container">
+                    <img src="TestRig2.jpg" alt="Test rig" class="modal-img">
+                    <p class="image-description">A custom designed and 3D printed part to space sensors to generate and receive guided waves</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="experience5Modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-body">
+                <div class="single-image-container">
+                    <img src="Simulation.gif" alt="Simulation" class="modal-img">
+                    <p class="image-description">Animation showing the process of topological imaging, incident field is reversed, differacted fields are transmitted normally and the correlation of the two enables the localization of the defect</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="experience6Modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-body">
+                <div class="single-image-container">
+                    <img src="ModalAnalysis.png" alt="Modal Analysis" class="modal-img">
+                    <p class="image-description">Image on the left shows how resonance frequencies of the system change due to icing and the image on the right shows Ansys simulations of the various modes of the plate to determine the ideal frequency to deice it</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="experience7Modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-body">
+                <div class="single-image-container">
+                    <img src="Deicing.png" alt="Deicing" class="modal-img">
+                    <p class="image-description">Deicing of the plate matching what was expected in the simulations</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="experience8Modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-body">
+                <div class="single-image-container">
+                    <img src="LeakDetection.png" alt="Leak detection" class="modal-img">
+                    <p class="image-description">Image demonstrating the concept of leak detection based on measurements before, on and after the valve</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="experience9Modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-body">
+                <div class="single-image-container">
+                    <img src="Denoising.png" alt="Denoising" class="modal-img">
+                    <p class="image-description">Image on the left shows wavelet based denoising and the ones on the right show how transient noise is relatively unaffected but impulse noise is largely denoised (blue vs orange)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="experience10Modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-body">
+                <div class="single-image-container">
+                    <img src="SteanTrapCavTherm.png" alt="" class="modal-img">
+                    <p class="image-description">Images showing the steam trap use case, cavitation tests to match AE with standard cavitation measurements and thermal camera measurements</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <script>
         // Initial hotspot positions - these would be configured based on your PDF layout
         // Using percentages for responsive positioning
         const hotspotPositions = {
-            education: { x: 10, y: 15, width: 80, height: 10 },
-            experience1: { x: 10, y: 30, width: 80, height: 12 },
-            experience2: { x: 10, y: 45, width: 80, height: 12 },
-            skills: { x: 10, y: 60, width: 80, height: 10 },
-            projects: { x: 10, y: 73, width: 80, height: 15 },
-            contact: { x: 10, y: 90, width: 80, height: 8 }
+            experience1: { x: 11, y: 35.5, width: 72.5, height: 12 },
+            experience2: { x: 11, y: 36.5, width: 82, height: 24 },
+            experience3: { x: 11, y: 50, width: 82, height: 24 },
+            experience4: { x: 11, y: 54, width: 50.5, height: 12 },
+            experience5: { x: 11, y: 56.3, width: 82, height: 24 },
+            experience6: { x: 11, y: 63.8, width: 82, height: 24 },
+            experience7: { x: 11, y: 65.8, width: 65.8, height: 12 },
+            experience8: { x: 11, y: 19.8, width: 73, height: 12 },
+            experience9: { x: 11, y: 20.8, width: 82, height: 12 },
+            experience10: { x: 11, y: 23.8, width: 82, height: 48 }
         };
         
         // Add this to your script to disable internal scrolling
@@ -886,63 +873,6 @@
             }
         }
         
-        document.getElementById('toggleEditMode').addEventListener('click', toggleEditMode);
-        
-        // Add these lines to your loadHotspotEditor function
-        function loadHotspotEditor() {
-            const selector = document.getElementById('hotspotSelector');
-            updateEditorFields(selector.value);
-            
-            selector.addEventListener('change', () => {
-                updateEditorFields(selector.value);
-            });
-            
-            // Add these lines for live preview
-            const inputFields = ['hotspotX', 'hotspotY', 'hotspotWidth', 'hotspotHeight'];
-            inputFields.forEach(fieldId => {
-                document.getElementById(fieldId).addEventListener('input', liveUpdateHotspot);
-            });
-        }
-
-        // Add this new function
-        function liveUpdateHotspot() {
-            const hotspotId = document.getElementById('hotspotSelector').value;
-            const x = parseFloat(document.getElementById('hotspotX').value);
-            const y = parseFloat(document.getElementById('hotspotY').value);
-            const width = parseFloat(document.getElementById('hotspotWidth').value);
-            const height = parseFloat(document.getElementById('hotspotHeight').value);
-            
-            // Create temporary position for preview (don't save to hotspotPositions yet)
-            const tempPosition = { x, y, width, height };
-            
-            // Update only the selected hotspot's position
-            const hotspot = document.getElementById(hotspotId);
-            if (hotspot) {
-                hotspot.style.left = `${tempPosition.x}%`;
-                hotspot.style.top = `${tempPosition.y}%`;
-                hotspot.style.width = `${tempPosition.width}%`;
-                hotspot.style.height = `${tempPosition.height}%`;
-                
-                // Update tooltip position too
-                const tooltip = hotspot.nextElementSibling;
-                if (tooltip && tooltip.classList.contains('tooltip')) {
-                    tooltip.style.left = `${tempPosition.x + tempPosition.width / 2}%`;
-                    tooltip.style.top = `${tempPosition.y + tempPosition.height + 1}%`;
-                    tooltip.style.transform = 'translateX(-50%)';
-                }
-            }
-        }
-        
-        function updateEditorFields(hotspotId) {
-            const position = hotspotPositions[hotspotId];
-            if (position) {
-                document.getElementById('hotspotX').value = position.x;
-                document.getElementById('hotspotY').value = position.y;
-                document.getElementById('hotspotWidth').value = position.width;
-                document.getElementById('hotspotHeight').value = position.height;
-            }
-        }
-        
         document.getElementById('saveHotspot').addEventListener('click', () => {
             const hotspotId = document.getElementById('hotspotSelector').value;
             const x = parseFloat(document.getElementById('hotspotX').value);
@@ -961,6 +891,25 @@
             }
         });
         
+        document.getElementById('linkedin').addEventListener('click', function(e) {
+            e.preventDefault();
+            // Replace with your actual LinkedIn URL
+            window.open('https://www.linkedin.com/in/adi413/', '_blank');
+        });
+
+        document.getElementById('location').addEventListener('click', function(e) {
+            e.preventDefault();
+            // Replace with your actual LinkedIn URL
+            window.open('https://www.linkedin.com/in/adi413/', '_blank');
+        });
+
+        document.getElementById('email').addEventListener('click', function(e) {
+            e.preventDefault();
+            // Replace with your actual LinkedIn URL
+            window.open('https://www.linkedin.com/in/adi413/', '_blank');
+        });
+
+
         // Export hotspot positions (for saving configuration)
         function exportHotspotPositions() {
             return JSON.stringify(hotspotPositions);
@@ -981,3 +930,4 @@
     </script>
 </body>
 </html>
+
