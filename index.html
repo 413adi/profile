@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive PDF Resume</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 0; /* Add some vertical padding */
+            overflow-y: auto;
+        }
+
+        .container {
+            max-width: 850px; /* Limit width for better readability */
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .pdf-container {
+            width: 100%;
+            position: relative;
+            background-color: white;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 30px;
+            overflow: hidden; /* Prevent content from spilling out */
+        }
+
+        .pdf-page {
+            width: 100%;
+            height: auto;
+        }
+
+        .pdf-pages-container {
+            width: 100%;
+            background-color: white;
+            padding: 10px;
+        }
+
+        .pdf-page-div {
+            width: 100%;
+            margin-bottom: 15px;
+            border: 1px solid #eee;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: center;
+            overflow: hidden; /* Prevent any overflow */
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto !important; /* Force height to auto to maintain aspect ratio */
+            display: block;
+            border-radius: 2px;
+        }
+        
+        .hotspot {
+            position: absolute;
+            background-color: rgba(0, 123, 255, 0);
+            border: 2px dashed rgba(0, 123, 255, 0);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .hotspot:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+            border: 2px dashed rgba(0, 123, 255, 0.5);
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #777;
+            transition: color 0.3s ease;
+        }
+        
+        .close-modal:hover {
+            color: #333;
+        }
+        
+        .modal-title {
+            margin-bottom: 1rem;
+            color: #0056b3;
+            font-size: 1.5rem;
+        }
+        
+        .modal-body p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        
+        .modal-body ul {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .modal-body li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .gallery-img {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .gallery-img:hover {
+            transform: scale(1.05);
+        }
+        
+        .tooltip {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            z-index: 100;
+            white-space: nowrap;
+        }
+
+        .hotspot:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* For responsiveness - adjust hotspot positions based on screen size */
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem auto;
+            }
+            
+            .modal-content {
+                padding: 1.5rem;
+                width: 95%;
+            }
+        }
+        
+        /* Define control panel for editing mode */
+        .control-panel {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 900;
+            display: none;
+        }
+        
+        .control-panel.active {
+            display: block;
+        }
+        
+        .control-panel button {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem 1rem;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .control-panel button:hover {
+            background-color: #003d82;
+        }
+        
+        .control-panel input {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            width: 100%;
+        }
+        
+        .control-panel select {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            width: 100%;
+        }
+
+        .hotspot-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: auto;
+            z-index: 10;
+        }
+
+        .hotspot {
+            position: absolute;
+            background-color: rgba(0, 123, 255, 0);
+            border: 2px dashed rgba(0, 123, 255, 0);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            pointer-events: auto; /* Keep this as auto to make hotspots clickable */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="pdf-container" id="pdfContainer">
+            <div id="pdfViewer" class="pdf-page"></div>
+            
+            <!-- Hotspot wrapper remains the same -->
+            <div class="hotspot-wrapper" id="hotspotWrapper">
+                <div class="hotspot" id="education">
+                    <div class="tooltip">Click to see education details</div>
+                </div>
+                
+                <div class="hotspot" id="experience1">
+                    <div class="tooltip">Click to see job details</div>
+                </div>
+                
+                <div class="hotspot" id="experience2">
+                    <div class="tooltip">Click to see job details</div>
+                </div>
+                
+                <div class="hotspot" id="skills">
+                    <div class="tooltip">Click to see skills details</div>
+                </div>
+                
+                <div class="hotspot" id="projects">
+                    <div class="tooltip">Click to see project details</div>
+                </div>
+                
+                <div class="hotspot" id="contact">
+                    <div class="tooltip">Click to send a message</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal templates - they will be populated with content when opened -->
+    <div class="modal" id="educationModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 class="modal-title">Education</h3>
+            <div class="modal-body">
+                <p><strong>University of Technology</strong> (2014-2018)</p>
+                <p>Bachelor of Science in Computer Science</p>
+                <p>GPA: 3.8/4.0 - Graduated with honors</p>
+                <p>Relevant coursework:</p>
+                <ul>
+                    <li>Data Structures and Algorithms</li>
+                    <li>Web Development</li>
+                    <li>Database Management</li>
+                    <li>UI/UX Design Principles</li>
+                    <li>Software Engineering</li>
+                </ul>
+                <p>During my time at the university, I participated in multiple hackathons and was a member of the Computer Science Student Association. My capstone project focused on developing a machine learning algorithm for predicting student success based on early course engagement metrics.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="experience1Modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 class="modal-title">Senior Front-end Developer</h3>
+            <div class="modal-body">
+                <p><strong>Tech Solutions Inc.</strong> (Jan 2023 - Present)</p>
+                <p>As a Senior Front-end Developer, I lead a team of 5 developers working on various client projects. My responsibilities include:</p>
+                <ul>
+                    <li>Architecting front-end solutions for enterprise clients</li>
+                    <li>Implementing responsive design principles across all company websites</li>
+                    <li>Optimizing application performance (reduced load time by 40%)</li>
+                    <li>Collaborating with UX designers to implement intuitive user interfaces</li>
+                    <li>Mentoring junior developers and conducting code reviews</li>
+                </ul>
+                <p><strong>Key achievements:</strong></p>
+                <ul>
+                    <li>Led the complete redesign of our flagship client's e-commerce platform, resulting in a 25% increase in conversion rate</li>
+                    <li>Implemented a component library that reduced development time by 30%</li>
+                    <li>Introduced automated testing protocols that caught 95% of bugs before production</li>
+                </ul>
+                <div class="gallery">
+                    <img src="/api/placeholder/200/150" alt="Project Screenshot" class="gallery-img">
+                    <img src="/api/placeholder/200/150" alt="Project Screenshot" class="gallery-img">
+                    <img src="/api/placeholder/200/150" alt="Project Screenshot" class="gallery-img">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="experience2Modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 class="modal-title">Web Developer</h3>
+            <div class="modal-body">
+                <p><strong>Digital Innovations</strong> (Aug 2020 - Dec 2022)</p>
+                <p>As a Web Developer, I was responsible for implementing modern web technologies across various client projects. My duties included:</p>
+                <ul>
+                    <li>Building e-commerce platforms using React and Node.js</li>
+                    <li>Integrating payment gateways such as Stripe and PayPal</li>
+                    <li>Developing custom content management systems</li>
+                    <li>Optimizing website performance for mobile devices</li>
+                    <li>Creating comprehensive documentation for all projects</li>
+                </ul>
+                <p><strong>Key projects:</strong></p>
+                <ul>
+                    <li>Developed a custom e-commerce solution for a retail client with 50+ physical locations</li>
+                    <li>Created a content management system for a publishing company that managed 1000+ articles</li>
+                    <li>Implemented a booking system for a chain of fitness studios</li>
+                </ul>
+                <div class="gallery">
+                    <img src="/api/placeholder/200/150" alt="Project Screenshot" class="gallery-img">
+                    <img src="/api/placeholder/200/150" alt="Project Screenshot" class="gallery-img">
+                    <img src="/api/placeholder/200/150" alt="Project Screenshot" class="gallery-img">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="skillsModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 class="modal-title">Skills & Expertise</h3>
+            <div class="modal-body">
+                <p><strong>Technical Skills:</strong></p>
+                <ul>
+                    <li><strong>Languages:</strong> HTML5, CSS3, JavaScript (ES6+), TypeScript, Python</li>
+                    <li><strong>Frameworks/Libraries:</strong> React, Vue.js, Angular, Node.js, Express</li>
+                    <li><strong>Tools:</strong> Git, Webpack, Docker, Jenkins, AWS</li>
+                    <li><strong>Design:</strong> Figma, Adobe XD, Responsive Design, CSS Animation</li>
+                    <li><strong>Testing:</strong> Jest, Mocha, Cypress, React Testing Library</li>
+                </ul>
+                <p><strong>Soft Skills:</strong></p>
+                <ul>
+                    <li>Team Leadership</li>
+                    <li>Project Management</li>
+                    <li>Client Communication</li>
+                    <li>Problem-solving</li>
+                    <li>Mentoring</li>
+                </ul>
+                <p><strong>Certifications:</strong></p>
+                <ul>
+                    <li>AWS Certified Developer – Associate</li>
+                    <li>Google Professional Cloud Developer</li>
+                    <li>Certified ScrumMaster (CSM)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="projectsModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 class="modal-title">Featured Projects</h3>
+            <div class="modal-body">
+                <div>
+                    <h4>E-commerce Platform</h4>
+                    <p>A fully functional e-commerce website with payment integration and inventory management.</p>
+                    <p><strong>Technologies:</strong> React, Node.js, MongoDB, Stripe API</p>
+                    <p><strong>Key Features:</strong></p>
+                    <ul>
+                        <li>User authentication and profiles</li>
+                        <li>Product search and filtering</li>
+                        <li>Shopping cart and wishlist</li>
+                        <li>Secure payment processing</li>
+                        <li>Order tracking and history</li>
+                    </ul>
+                    <div class="gallery">
+                        <img src="/api/placeholder/200/150" alt="Project Screenshot" class="gallery-img">
+                        <img src="/api/placeholder/200/150" alt="Project Screenshot" class="gallery-img">
+                    </div>
+                    <p><a href="#" target="_blank">View Demo</a> | <a href="#" target="_blank">GitHub Repository</a></p>
+                </div>
+                <hr style="margin: 1.5rem 0;">
+                <div>
+                    <h4>Fitness Tracking App</h4>
+                    <p>A mobile application that helps users track their workouts and nutrition.</p>
+                    <p><strong>Technologies:</strong> React Native, Firebase, Redux</p>
+                    <p><strong>Key Features:</strong></p>
+                    <ul>
+                        <li>Workout planning and tracking</li>
+                        <li>Nutrition logging with calorie calculation</li>
+                        <li>Progress visualization with charts</li>
+                        <li>Social sharing and community features</li>
+                        <li>Integration with fitness wearables</li>
+                    </ul>
+                    <div class="gallery">
+                        <img src="/api/placeholder/200/150" alt="Project Screenshot" class="gallery-img">
+                        <img src="/api/placeholder/200/150" alt="Project Screenshot" class="gallery-img">
+                    </div>
+                    <p><a href="#" target="_blank">Case Study</a> | <a href="#" target="_blank">GitHub Repository</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="contactModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 class="modal-title">Contact Me</h3>
+            <div class="modal-body">
+                <p>Feel free to reach out to me through any of the following channels:</p>
+                <ul>
+                    <li><strong>Email:</strong> <a href="mailto:your.email@example.com">your.email@example.com</a></li>
+                    <li><strong>Phone:</strong> (123) 456-7890</li>
+                    <li><strong>LinkedIn:</strong> <a href="https://linkedin.com/in/yourprofile" target="_blank">linkedin.com/in/yourprofile</a></li>
+                    <li><strong>GitHub:</strong> <a href="https://github.com/yourusername" target="_blank">github.com/yourusername</a></li>
+                    <li><strong>Portfolio:</strong> <a href="https://yourwebsite.com" target="_blank">yourwebsite.com</a></li>
+                </ul>
+                <form id="contactForm" style="margin-top: 1.5rem;">
+                    <div style="margin-bottom: 1rem;">
+                        <label for="name" style="display: block; margin-bottom: 0.5rem;">Name:</label>
+                        <input type="text" id="name" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label for="email" style="display: block; margin-bottom: 0.5rem;">Email:</label>
+                        <input type="email" id="email" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label for="message" style="display: block; margin-bottom: 0.5rem;">Message:</label>
+                        <textarea id="message" rows="5" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                    </div>
+                    <button type="submit" style="background-color: #0056b3; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 4px; cursor: pointer;">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Control panel for editing mode (hidden by default) -->
+    <div class="control-panel" id="controlPanel">
+        <h4>Hotspot Editor</h4>
+        <select id="hotspotSelector">
+            <option value="education">Education</option>
+            <option value="experience1">Experience 1</option>
+            <option value="experience2">Experience 2</option>
+            <option value="skills">Skills</option>
+            <option value="projects">Projects</option>
+            <option value="contact">Contact</option>
+        </select>
+        <div>
+            <label for="hotspotX">X (%):</label>
+            <input type="number" id="hotspotX" min="0" max="100" step="0.1">
+        </div>
+        <div>
+            <label for="hotspotY">Y (%):</label>
+            <input type="number" id="hotspotY" min="0" max="100" step="0.1">
+        </div>
+        <div>
+            <label for="hotspotWidth">Width (%):</label>
+            <input type="number" id="hotspotWidth" min="0" max="100" step="0.1">
+        </div>
+        <div>
+            <label for="hotspotHeight">Height (%):</label>
+            <input type="number" id="hotspotHeight" min="0" max="100" step="0.1">
+        </div>
+        <button id="saveHotspot">Save Hotspot</button>
+        <button id="toggleEditMode">Exit Edit Mode</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script>
+        // Initial hotspot positions - these would be configured based on your PDF layout
+        // Using percentages for responsive positioning
+        const hotspotPositions = {
+            education: { x: 10, y: 15, width: 80, height: 10 },
+            experience1: { x: 10, y: 30, width: 80, height: 12 },
+            experience2: { x: 10, y: 45, width: 80, height: 12 },
+            skills: { x: 10, y: 60, width: 80, height: 10 },
+            projects: { x: 10, y: 73, width: 80, height: 15 },
+            contact: { x: 10, y: 90, width: 80, height: 8 }
+        };
+        
+        // Add this to your script to disable internal scrolling
+        // In your positionHotspots function, adjust to handle scrolling
+        // Replace your current positionHotspots function with this one
+        // Initialize PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+        // Load the PDF
+        let pdfDoc = null;
+        let pageNum = 1;
+        let pageRendering = false;
+        let pageNumPending = null;
+        // Replace the fixed scale
+        // const scale = 2.0;
+
+        // With a dynamic scale calculation
+        function calculateScale() {
+            const pdfContainer = document.getElementById('pdfContainer');
+            const containerWidth = pdfContainer.clientWidth - 30; // Account for padding
+            
+            // Use a higher minimum scale for better clarity
+            // This ensures text remains readable
+            return Math.max(1.5, containerWidth / 600); // Adjusted from 800 to 600 for better quality
+        }
+
+        const scale = calculateScale();
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const pdfViewer = document.getElementById('pdfViewer');
+        pdfViewer.appendChild(canvas);
+
+        // Render a specific page of the PDF
+        function renderPage(num) {
+            pageRendering = true;
+            
+            // Get the page
+            pdfDoc.getPage(num).then(function(page) {
+                const viewport = page.getViewport({ scale: scale });
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                
+                // Render PDF page into canvas context
+                const renderContext = {
+                    canvasContext: ctx,
+                    viewport: viewport
+                };
+                
+                const renderTask = page.render(renderContext);
+                
+                // Wait for rendering to finish
+                renderTask.promise.then(function() {
+                    pageRendering = false;
+                    
+                    if (pageNumPending !== null) {
+                        // New page rendering is pending
+                        renderPage(pageNumPending);
+                        pageNumPending = null;
+                    }
+                    
+                    // Position hotspots after page is rendered
+                    positionHotspots();
+                });
+            });
+        }
+
+        // Load and render the PDF
+        function loadPDF() {
+            pdfjsLib.getDocument('Resume_AdityaKrishna.pdf').promise.then(function(pdf) {
+                pdfDoc = pdf;
+                
+                // Initial page render
+                renderPage(1);
+                
+                // Render all pages for scrolling
+                renderAllPages(pdf);
+            });
+        }
+
+        // Render all pages of the PDF for scrolling
+        function renderAllPages(pdf) {
+            const pdfContainer = document.getElementById('pdfViewer');
+            pdfContainer.innerHTML = ''; // Clear any existing content
+            
+            // Get total page count
+            const numPages = pdf.numPages;
+            
+            // Create a container to hold all pages
+            const pagesContainer = document.createElement('div');
+            pagesContainer.className = 'pdf-pages-container';
+            pdfContainer.appendChild(pagesContainer);
+            
+            // Function to render a specific page
+            function renderPageToContainer(pageNum) {
+                return pdf.getPage(pageNum).then(function(page) {
+                    const pdfContainer = document.getElementById('pdfContainer');
+                    const containerWidth = pdfContainer.clientWidth - 50;
+                    
+                    // Get original page dimensions
+                    const originalViewport = page.getViewport({ scale: 1.0 });
+                    const originalAspectRatio = originalViewport.width / originalViewport.height;
+                    
+                    // Calculate scale to fit container width
+                    const widthScale = containerWidth / originalViewport.width;
+                    
+                    // Use a minimum scale of 1.5 for clarity, but respect aspect ratio
+                    const scaleFactor = Math.max(1.5, widthScale);
+                    const displayViewport = page.getViewport({ scale: scaleFactor });
+                    
+                    // Create div for this page
+                    const pageDiv = document.createElement('div');
+                    pageDiv.className = 'pdf-page-div';
+                    pageDiv.setAttribute('data-page-number', pageNum);
+                    pageDiv.style.position = 'relative';
+                    
+                    // Create canvas for this page
+                    const pageCanvas = document.createElement('canvas');
+                    
+                    // Set dimensions maintaining aspect ratio
+                    const pixelRatio = window.devicePixelRatio || 1;
+                    pageCanvas.width = displayViewport.width * pixelRatio;
+                    pageCanvas.height = displayViewport.height * pixelRatio;
+                    pageCanvas.style.width = '100%'; // Make it responsive to container
+                    pageCanvas.style.height = 'auto'; // Maintain aspect ratio
+                    
+                    const context = pageCanvas.getContext('2d');
+                    context.scale(pixelRatio, pixelRatio);
+                    
+                    pageDiv.appendChild(pageCanvas);
+                    pagesContainer.appendChild(pageDiv);
+                    
+                    // Render with improved quality
+                    const renderContext = {
+                        canvasContext: context,
+                        viewport: displayViewport,
+                        renderInteractiveForms: true
+                    };
+                    
+                    return page.render(renderContext).promise.then(() => {
+                        return { 
+                            pageNum, 
+                            height: displayViewport.height, 
+                            width: displayViewport.width 
+                        };
+                    });
+                });
+            }
+            
+            // Render all pages
+            const renderPromises = [];
+            for (let i = 1; i <= numPages; i++) {
+                renderPromises.push(renderPageToContainer(i));
+            }
+            
+            // After all pages are rendered, position hotspots
+            Promise.all(renderPromises).then(pageInfos => {
+                // Store page dimensions for hotspot positioning
+                window.pdfPageInfo = pageInfos;
+                
+                // Position hotspots
+                positionHotspots();
+                
+                // Set wrapper height to match all pages
+                const totalHeight = pageInfos.reduce((acc, info) => acc + info.height, 0);
+                document.getElementById('hotspotWrapper').style.height = totalHeight + 'px';
+            });
+        }
+
+        // Call loadPDF when document is loaded
+        window.addEventListener('load', loadPDF);
+        function positionHotspots() {
+            if (!window.pdfPageInfo) return; // Wait for PDF info to be available
+            
+            const wrapper = document.getElementById('hotspotWrapper');
+            const pdfViewer = document.getElementById('pdfViewer');
+            
+            // Set wrapper to cover the PDF viewer
+            wrapper.style.width = '100%';
+            wrapper.style.position = 'absolute';
+            wrapper.style.top = '0';
+            wrapper.style.left = '0';
+            wrapper.style.pointerEvents = 'none';
+            
+            // Calculate the total height of all pages
+            const totalHeight = window.pdfPageInfo.reduce((acc, info) => acc + info.height, 0);
+            wrapper.style.height = totalHeight + 'px';
+            
+            // Position each hotspot based on its percentage position
+            for (const [id, position] of Object.entries(hotspotPositions)) {
+                const hotspot = document.getElementById(id);
+                if (hotspot) {
+                    // Calculate vertical position based on PDF height
+                    const yPos = (position.y / 100) * totalHeight;
+                    
+                    // Set the hotspot's position
+                    hotspot.style.position = 'absolute';
+                    hotspot.style.left = `${position.x}%`;
+                    hotspot.style.top = `${yPos}px`;
+                    hotspot.style.width = `${position.width}%`;
+                    hotspot.style.height = `${(position.height / 100) * 200}px`; // Adjust height based on content
+                    hotspot.style.pointerEvents = 'auto';
+                }
+            }
+        }
+        // Position hotspots on load and window resize
+        window.addEventListener('load', positionHotspots);
+        window.addEventListener('resize', positionHotspots);
+        // Add this right after your existing event listeners
+        window.addEventListener('scroll', function() {
+            // No need for complex repositioning since we're using percentages
+            // Just ensure the container maintains proper relative positioning
+            const pdfContainer = document.getElementById('pdfContainer');
+            if (pdfContainer.style.position !== 'relative') {
+                pdfContainer.style.position = 'relative';
+            }
+        });
+        // Add this after your other event listeners
+        window.addEventListener('scroll', function() {
+            requestAnimationFrame(positionHotspots);
+        });
+        // Add this to your existing script
+        window.addEventListener('load', function() {
+            // Give the PDF time to load
+            setTimeout(function() {
+                const iframe = document.getElementById('resumePdf');
+                const wrapper = document.getElementById('hotspotWrapper');
+                
+                // Set a large initial height to ensure scrollability
+                iframe.style.height = "1500px"; // Adjust this value based on your PDF's actual size
+                wrapper.style.height = "1500px";
+                
+                // Re-position hotspots after size adjustment
+                positionHotspots();
+            }, 1000);
+        });
+        // Add this function to restore scrolling functionality
+        function enableScrolling() {
+            document.querySelectorAll('.hotspot').forEach(hotspot => {
+                hotspot.addEventListener('click', function(e) {
+                    // Prevent any default behavior that might interfere with scrolling
+                    e.stopPropagation();
+                    
+                    // Open the modal
+                    const modalId = `${this.id}Modal`;
+                    const modal = document.getElementById(modalId);
+                    if (modal) {
+                        modal.classList.add('active');
+                    }
+                    
+                    // Ensure scrolling is still enabled
+                    document.body.style.overflow = 'auto';
+                    document.documentElement.style.overflow = 'auto';
+                });
+            });
+        }
+
+        // Call this function after the document loads
+        window.addEventListener('load', enableScrolling);
+        // Set up modal functionality
+        const modals = document.querySelectorAll('.modal');
+        const closeButtons = document.querySelectorAll('.close-modal');
+        
+        // Open modal when hotspot is clicked
+        document.querySelectorAll('.hotspot').forEach(hotspot => {
+            hotspot.addEventListener('click', () => {
+                const modalId = `${hotspot.id}Modal`;
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.add('active');
+                }
+            });
+        });
+        
+        // Close modal when close button is clicked
+        closeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                button.closest('.modal').classList.remove('active');
+                // Restore scrolling
+                document.body.style.overflow = 'auto';
+                document.documentElement.style.overflow = 'auto';
+            });
+        });
+
+        
+        // Close modal when clicking outside of modal content
+        modals.forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                    // Restore scrolling
+                    document.body.style.overflow = 'auto';
+                    document.documentElement.style.overflow = 'auto';
+                }
+            });
+        });
+        
+        // Close modal when Escape key is pressed
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                modals.forEach(modal => {
+                    modal.classList.remove('active');
+                });
+            }
+        });
+        
+        // Handle form submission (just for demonstration)
+        const contactForm = document.getElementById('contactForm');
+        if (contactForm) {
+            contactForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                alert('Thank you for your message! This is a demo form - in a real website, this would send an email.');
+                contactForm.reset();
+                document.getElementById('contactModal').classList.remove('active');
+            });
+        }
+        
+        // Edit mode functionality
+        let editMode = false;
+        const editModeKeyCode = 'KeyE'; // Press 'e' key + Ctrl to toggle edit mode
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.code === editModeKeyCode) {
+                toggleEditMode();
+            }
+        });
+        
+        function toggleEditMode() {
+            editMode = !editMode;
+            const controlPanel = document.getElementById('controlPanel');
+            
+            if (editMode) {
+                controlPanel.classList.add('active');
+                document.querySelectorAll('.hotspot').forEach(hotspot => {
+                    hotspot.style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
+                    hotspot.style.border = '2px dashed rgba(255, 0, 0, 0.8)';
+                });
+                loadHotspotEditor();
+            } else {
+                controlPanel.classList.remove('active');
+                document.querySelectorAll('.hotspot').forEach(hotspot => {
+                    hotspot.style.backgroundColor = '';
+                    hotspot.style.border = '';
+                });
+            }
+        }
+        
+        document.getElementById('toggleEditMode').addEventListener('click', toggleEditMode);
+        
+        // Add these lines to your loadHotspotEditor function
+        function loadHotspotEditor() {
+            const selector = document.getElementById('hotspotSelector');
+            updateEditorFields(selector.value);
+            
+            selector.addEventListener('change', () => {
+                updateEditorFields(selector.value);
+            });
+            
+            // Add these lines for live preview
+            const inputFields = ['hotspotX', 'hotspotY', 'hotspotWidth', 'hotspotHeight'];
+            inputFields.forEach(fieldId => {
+                document.getElementById(fieldId).addEventListener('input', liveUpdateHotspot);
+            });
+        }
+
+        // Add this new function
+        function liveUpdateHotspot() {
+            const hotspotId = document.getElementById('hotspotSelector').value;
+            const x = parseFloat(document.getElementById('hotspotX').value);
+            const y = parseFloat(document.getElementById('hotspotY').value);
+            const width = parseFloat(document.getElementById('hotspotWidth').value);
+            const height = parseFloat(document.getElementById('hotspotHeight').value);
+            
+            // Create temporary position for preview (don't save to hotspotPositions yet)
+            const tempPosition = { x, y, width, height };
+            
+            // Update only the selected hotspot's position
+            const hotspot = document.getElementById(hotspotId);
+            if (hotspot) {
+                hotspot.style.left = `${tempPosition.x}%`;
+                hotspot.style.top = `${tempPosition.y}%`;
+                hotspot.style.width = `${tempPosition.width}%`;
+                hotspot.style.height = `${tempPosition.height}%`;
+                
+                // Update tooltip position too
+                const tooltip = hotspot.nextElementSibling;
+                if (tooltip && tooltip.classList.contains('tooltip')) {
+                    tooltip.style.left = `${tempPosition.x + tempPosition.width / 2}%`;
+                    tooltip.style.top = `${tempPosition.y + tempPosition.height + 1}%`;
+                    tooltip.style.transform = 'translateX(-50%)';
+                }
+            }
+        }
+        
+        function updateEditorFields(hotspotId) {
+            const position = hotspotPositions[hotspotId];
+            if (position) {
+                document.getElementById('hotspotX').value = position.x;
+                document.getElementById('hotspotY').value = position.y;
+                document.getElementById('hotspotWidth').value = position.width;
+                document.getElementById('hotspotHeight').value = position.height;
+            }
+        }
+        
+        document.getElementById('saveHotspot').addEventListener('click', () => {
+            const hotspotId = document.getElementById('hotspotSelector').value;
+            const x = parseFloat(document.getElementById('hotspotX').value);
+            const y = parseFloat(document.getElementById('hotspotY').value);
+            const width = parseFloat(document.getElementById('hotspotWidth').value);
+            const height = parseFloat(document.getElementById('hotspotHeight').value);
+            
+            if (hotspotPositions[hotspotId]) {
+                hotspotPositions[hotspotId] = { x, y, width, height };
+                positionHotspots();
+                
+                // In a real application, you might want to save this to localStorage or a database
+                console.log('Updated hotspot positions:', hotspotPositions);
+                
+                alert(`Hotspot "${hotspotId}" updated successfully!`);
+            }
+        });
+        
+        // Export hotspot positions (for saving configuration)
+        function exportHotspotPositions() {
+            return JSON.stringify(hotspotPositions);
+        }
+        
+        // Import hotspot positions (for loading saved configuration)
+        function importHotspotPositions(positionsJson) {
+            try {
+                const positions = JSON.parse(positionsJson);
+                Object.assign(hotspotPositions, positions);
+                positionHotspots();
+                return true;
+            } catch (e) {
+                console.error('Failed to import hotspot positions:', e);
+                return false;
+            }
+        }
+    </script>
+</body>
+</html>
