@@ -89,7 +89,6 @@
         .hotspot:active {
             background-color: rgba(0, 123, 255, 0.25);
             border: 2px solid rgba(0, 123, 255, 0.6);
-
         }
 
         .modal {
@@ -331,6 +330,23 @@
             z-index: 10;
         }
 
+        @media (max-width: 768px) and (orientation: portrait) {
+            /* Additional styles for portrait mode on small screens */
+            .container {
+                padding: 0 10px;
+            }
+            
+            /* Style for the orientation message */
+            #orientationMessage {
+                animation: pulse 2s infinite;
+            }
+            
+            @keyframes pulse {
+                0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4); }
+                70% { box-shadow: 0 0 0 10px rgba(0, 123, 255, 0); }
+                100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+            }
+        }
     </style>
 </head>
 <body>
@@ -751,20 +767,41 @@
         });
 
         // Add this to your existing script
+        // Consolidate window load event listeners
         window.addEventListener('load', function() {
-            // Give the PDF time to load
+            loadPDF();
+            positionHotspots();
+            enableScrolling();
+            checkDeviceAndOrientation();
+            
+            // Set appropriate initial height for wrapper with delay
             setTimeout(function() {
-                const iframe = document.getElementById('resumePdf');
                 const wrapper = document.getElementById('hotspotWrapper');
-                
-                // Set a large initial height to ensure scrollability
-                iframe.style.height = "1500px"; // Adjust this value based on your PDF's actual size
                 wrapper.style.height = "1500px";
-                
-                // Re-position hotspots after size adjustment
                 positionHotspots();
             }, 1000);
+            
+            // Check orientation after delays
+            setTimeout(checkDeviceAndOrientation, 500);
+            setTimeout(checkDeviceAndOrientation, 1000);
+            setTimeout(checkDeviceAndOrientation, 2000);
         });
+
+        // Consolidate resize event listener with debouncing
+        window.addEventListener('resize', debounce(function() {
+            positionHotspots();
+            checkDeviceAndOrientation();
+        }, 100));
+
+        // Consolidate orientation change listener
+        window.addEventListener('orientationchange', function() {
+            setTimeout(checkDeviceAndOrientation, 200);
+        });
+
+        // Consolidate scroll event listener
+        window.addEventListener('scroll', debounce(function() {
+            positionHotspots();
+        }, 100));
         // Add this function to restore scrolling functionality
         function enableScrolling() {
             document.querySelectorAll('.hotspot').forEach(hotspot => {
@@ -878,11 +915,6 @@
         }
         
         document.getElementById('saveHotspot').addEventListener('click', () => {
-            const hotspotId = document.getElementById('hotspotSelector').value;
-            const x = parseFloat(document.getElementById('hotspotX').value);
-            const y = parseFloat(document.getElementById('hotspotY').value);
-            const width = parseFloat(document.getElementById('hotspotWidth').value);
-            const height = parseFloat(document.getElementById('hotspotHeight').value);
             
             if (hotspotPositions[hotspotId]) {
                 hotspotPositions[hotspotId] = { x, y, width, height };
@@ -931,7 +963,128 @@
                 return false;
             }
         }
+
+        // Also check on resize and orientation change
+        window.addEventListener('resize', checkOrientation);
+        window.addEventListener('orientationchange', function() {
+            // Check multiple times after orientation change
+            setTimeout(checkOrientation, 100);
+            setTimeout(checkOrientation, 500);
+            setTimeout(checkOrientation, 1000);
+        });
+
+        // Add this function to your JavaScript
+        function checkDeviceAndOrientation() {
+            const container = document.getElementById('pdfContainer');
+            const hotspotWrapper = document.getElementById('hotspotWrapper');
+            const windowWidth = window.innerWidth;
+            
+            // Check if screen width is below threshold (850px as you suggested)
+            if (windowWidth < 850) {
+                // Hide hotspots
+                hotspotWrapper.style.display = 'none';
+                
+                // Check if in portrait mode on mobile (width < height)
+                if (window.innerWidth < window.innerHeight) {
+                    // Show landscape mode message if it doesn't exist yet
+                    if (!document.getElementById('landscapeMessage')) {
+                        createLandscapeMessage();
+                    }
+                } else {
+                    // In landscape mode, remove message if it exists
+                    const message = document.getElementById('landscapeMessage');
+                    if (message) {
+                        message.remove();
+                    }
+                    
+                    // Consider showing hotspots in landscape mode if width is adequate
+                    if (windowWidth > 600) { // Minimum width for usable hotspots in landscape
+                        hotspotWrapper.style.display = 'block';
+                    }
+                }
+            } else {
+                // For desktop/larger screens, show hotspots and remove message
+                hotspotWrapper.style.display = 'block';
+                const message = document.getElementById('landscapeMessage');
+                if (message) {
+                    message.remove();
+                }
+            }
+        }
+
+        // Function to create the landscape mode message
+        function createLandscapeMessage() {
+            const messageDiv = document.createElement('div');
+            messageDiv.id = 'landscapeMessage';
+            messageDiv.style.position = 'fixed';
+            messageDiv.style.top = '50%';
+            messageDiv.style.left = '50%';
+            messageDiv.style.transform = 'translate(-50%, -50%)';
+            messageDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
+            messageDiv.style.color = 'white';
+            messageDiv.style.padding = '20px';
+            messageDiv.style.borderRadius = '10px';
+            messageDiv.style.textAlign = 'center';
+            messageDiv.style.zIndex = '1000';
+            messageDiv.style.maxWidth = '80%';
+            messageDiv.style.boxShadow = '0 0 20px rgba(0, 123, 255, 0.5)';
+            
+            // Add pulsing animation
+            messageDiv.style.animation = 'pulse 2s infinite';
+            
+            // Create a style element for the pulse animation
+            const styleElement = document.createElement('style');
+            styleElement.textContent = `
+                @keyframes pulse {
+                    0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); }
+                    70% { box-shadow: 0 0 0 15px rgba(0, 123, 255, 0); }
+                    100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+                }
+            `;
+            document.head.appendChild(styleElement);
+            
+            // Add content with icon and message
+            messageDiv.innerHTML = `
+                <div style="font-size: 36px; margin-bottom: 15px;">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="2" width="16" height="20" rx="2" ry="2" transform="rotate(90 12 12)"></rect>
+                        <line x1="12" y1="18" x2="12" y2="18.01"></line>
+                    </svg>
+                </div>
+                <h3 style="margin-bottom: 15px; font-size: 18px;">Switch to landscape mode</h3>
+            `;
+            
+            document.body.appendChild(messageDiv);
+            
+            // Add click handler for dismiss button
+            document.getElementById('dismissMessage').addEventListener('click', function() {
+                messageDiv.remove();
+                // Show hotspots even in portrait mode if user dismisses message
+                document.getElementById('hotspotWrapper').style.display = 'block';
+            });
+        }
+
+        // Call the function initially
+        window.addEventListener('load', checkDeviceAndOrientation);
+
+        // Call on resize and orientation change
+        window.addEventListener('resize', debounce(checkDeviceAndOrientation, 100));
+        window.addEventListener('orientationchange', function() {
+            // Small delay to allow orientation change to complete
+            setTimeout(checkDeviceAndOrientation, 200);
+        });
+
+        function debounce(func, wait) {
+            let timeout;
+            return function() {
+                const context = this;
+                const args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), wait);
+            };
+        }
     </script>
+
 </body>
 </html>
 
