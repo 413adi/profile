@@ -274,6 +274,13 @@
                 padding: 1.5rem;
                 width: 95%;
             }
+
+            .instruction-box {
+                font-size: 12px; /* Smaller font on medium screens */
+                padding: 6px 10px;
+                top: 5px;
+                right: 5px;
+            }
         }
         
         /* Define control panel for editing mode */
@@ -328,6 +335,7 @@
             height: 100%;
             pointer-events: auto;
             z-index: 10;
+            font-family: "Times New Roman", Times, serif;
         }
 
         @media (max-width: 768px) and (orientation: portrait) {
@@ -336,6 +344,9 @@
                 padding: 0 10px;
             }
             
+            .instruction-box {
+                font-size: calc(9px + 0.4vw); /* Slightly smaller on medium screens */
+            }
             /* Style for the orientation message */
             #orientationMessage {
                 animation: pulse 2s infinite;
@@ -347,6 +358,41 @@
                 100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
             }
         }
+
+        .instruction-box {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 123, 255, 0.08);
+            border: 2px dashed rgba(0, 123, 255, 0.0);
+            color: #333;
+            padding: 8px 12px;
+            border-radius: 4px;
+            /* Replace the viewport-based calculation with em units */
+            font-size: 1em; /* Base size that will be scaled in JavaScript */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 900;
+            pointer-events: none;
+            transition: none;
+            font-family: "Times New Roman", Times, serif;
+        }
+
+        .instruction-box:hover {
+            background-color: rgba(0, 123, 255, 0.2);
+            border: 2px dashed rgba(0, 123, 255, 0);
+        }
+
+        @media (max-width: 480px) {
+            .instruction-box {
+                font-size: calc(8px + 0.3vw); /* Even smaller on small screens */
+                padding: 4px 8px;
+                top: 3px;
+                right: 3px;
+                width: auto; /* Allow it to shrink based on content */
+                max-width: 40%; /* Limit maximum width on small screens */
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -356,6 +402,10 @@
             
             <!-- Hotspot wrapper remains the same -->
             <div class="hotspot-wrapper" id="hotspotWrapper">
+                <div class="instruction-box" id="instructionBox">
+                    Click the blue highlighted text below to see more
+                </div>
+
                 <div class="hotspot" id="linkedin">
                 </div>
 
@@ -535,6 +585,7 @@
         // Initial hotspot positions - these would be configured based on your PDF layout
         // Using percentages for responsive positioning
         const hotspotPositions = {
+            instructionBox: { x: 78, y: 4, width: 16, height: 4 },
             experience1: { x: 11.5, y: 38.9, width: 75, height: 1 },
             experience2: { x: 11.5, y: 40, width: 85, height: 2 },
             experience3: { x: 11.5, y: 54.9, width: 85, height: 2 },
@@ -756,6 +807,34 @@
                     hotspot.style.height = `${height}px`;
                     hotspot.style.pointerEvents = 'auto';
                 }
+            }
+
+            if (instructionBox) {
+                // Base positioning from hotspotPositions
+                const position = hotspotPositions.instructionBox;
+                const pageHeight = pdfViewer.offsetHeight;
+                const pageWidth = pdfViewer.offsetWidth;
+                
+                // Calculate the absolute position relative to the container
+                let xPos = (position.x / 100) * pageWidth;
+                let yPos = (position.y / 100) * pageHeight;
+                let width = (position.width / 100) * pageWidth;
+                let height = (position.height / 100) * pageHeight;
+                
+                // Calculate font size based on PDF width
+                let fontSize = Math.max(8, Math.min(16, pageWidth * 0.018)); // 1.8% of PDF width, min 8px, max 16px
+                
+                // Set the hotspot's position and font size
+                instructionBox.style.position = 'absolute';
+                instructionBox.style.left = `${xPos}px`;
+                instructionBox.style.top = `${yPos}px`;
+                instructionBox.style.width = `${width}px`;
+                instructionBox.style.height = `${height}px`;
+                instructionBox.style.fontSize = `${fontSize}px`;
+                
+                // Adjust padding based on font size
+                let padding = Math.max(4, fontSize * 0.5);
+                instructionBox.style.padding = `${padding}px ${padding * 1.5}px`;
             }
         }
         // Position hotspots on load and window resize
@@ -1032,7 +1111,7 @@
             // Add pulsing animation
             messageDiv.style.animation = 'pulse 2s infinite';
             
-            // Create a style element for the pulse animation
+            // Create a style element for the animations
             const styleElement = document.createElement('style');
             styleElement.textContent = `
                 @keyframes pulse {
@@ -1040,30 +1119,64 @@
                     70% { box-shadow: 0 0 0 15px rgba(0, 123, 255, 0); }
                     100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
                 }
+                
+                @keyframes rotatePhone {
+                    0% { transform: rotate(0deg); }
+                    20% { transform: rotate(90deg); }
+                    100% { transform: rotate(90deg); }
+                }
+                
+                @keyframes glow {
+                    0% { background-color: rgba(0, 123, 255, 0.3); }
+                    50% { background-color: rgba(0, 123, 255, 0.7); }
+                    100% { background-color: rgba(0, 123, 255, 0.3); }
+                }
+                
+                .phone-container {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 140px;
+                    margin-bottom: 20px;
+                }
+                
+                .phone {
+                    position: relative;
+                    width: 70px;
+                    height: 120px;
+                    border: 3px solid white;
+                    border-radius: 12px;
+                    background-color: rgba(255, 255, 255, 0.1);
+                    animation: rotatePhone 3s ease-in-out infinite;
+                    transform-origin: center center;
+                }
+                
+                .phone-screen {
+                    position: absolute;
+                    top: 5px;
+                    left: 5px;
+                    right: 5px;
+                    bottom: 5px;
+                    background-color: rgba(0, 123, 255, 0.3);
+                    border-radius: 6px;
+                    animation: glow 3s infinite;
+                    animation-delay: 1s;
+                }
             `;
             document.head.appendChild(styleElement);
             
-            // Add content with icon and message
+            // Add content with the phone animation
             messageDiv.innerHTML = `
-                <div style="font-size: 36px; margin-bottom: 15px;">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="4" y="2" width="16" height="20" rx="2" ry="2" transform="rotate(90 12 12)"></rect>
-                        <line x1="12" y1="18" x2="12" y2="18.01"></line>
-                    </svg>
+                <div class="phone-container">
+                    <div class="phone">
+                        <div class="phone-screen"></div>
+                    </div>
                 </div>
-                <h3 style="margin-bottom: 15px; font-size: 18px;">Switch to landscape mode</h3>
+                <h3 style="margin-bottom: 15px; font-size: 18px;">Rotate your device to landscape mode</h3>
             `;
             
             document.body.appendChild(messageDiv);
-            
-            // Add click handler for dismiss button
-            document.getElementById('dismissMessage').addEventListener('click', function() {
-                messageDiv.remove();
-                // Show hotspots even in portrait mode if user dismisses message
-                document.getElementById('hotspotWrapper').style.display = 'block';
-            });
         }
-
         // Call the function initially
         window.addEventListener('load', checkDeviceAndOrientation);
 
