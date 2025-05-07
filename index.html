@@ -72,22 +72,24 @@
         
         .hotspot {
             position: absolute;
-            background-color: rgba(0, 123, 255, 0.08); /* Light blue with slight visibility */
-            border: 2px dashed rgba(0, 123, 255, 0.0); /* Light dashed border */
+            background-color: rgba(0, 123, 255, 0.08);
+            border: 2px dashed rgba(0, 123, 255, 0.0);
             border-radius: 4px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            pointer-events: auto; /* This ensures they remain clickable */
+            transition: none; /* Remove the transition effect */
+            pointer-events: auto;
         }
 
         .hotspot:hover {
-            background-color: rgba(0, 123, 255, 0.2); /* More visible on hover */
-            border: 2px dashed rgba(0, 123, 255, 0); /* More visible border on hover */
+            background-color: rgba(0, 123, 255, 0.2);
+            border: 2px dashed rgba(0, 123, 255, 0);
+
         }
-        
+
         .hotspot:active {
-            background-color: rgba(0, 123, 255, 0.25); /* Even more visible when clicked */
-            border: 2px solid rgba(0, 123, 255, 0.6); /* Solid border when clicked */
+            background-color: rgba(0, 123, 255, 0.25);
+            border: 2px solid rgba(0, 123, 255, 0.6);
+
         }
 
         .modal {
@@ -165,7 +167,7 @@
         
         #linkedin {
             background-color: transparent;
-            border: black;
+            border: transparent;
         }
 
         #linkedin:hover {
@@ -517,16 +519,16 @@
         // Initial hotspot positions - these would be configured based on your PDF layout
         // Using percentages for responsive positioning
         const hotspotPositions = {
-            experience1: { x: 11, y: 35.5, width: 72.5, height: 12 },
-            experience2: { x: 11, y: 36.5, width: 82, height: 24 },
-            experience3: { x: 11, y: 50, width: 82, height: 24 },
-            experience4: { x: 11, y: 54, width: 50.5, height: 12 },
-            experience5: { x: 11, y: 56.3, width: 82, height: 24 },
-            experience6: { x: 11, y: 63.8, width: 82, height: 24 },
-            experience7: { x: 11, y: 65.8, width: 65.8, height: 12 },
-            experience8: { x: 11, y: 19.8, width: 73, height: 12 },
-            experience9: { x: 11, y: 20.8, width: 82, height: 12 },
-            experience10: { x: 11, y: 23.8, width: 82, height: 48 }
+            experience1: { x: 11.5, y: 38.9, width: 75, height: 1 },
+            experience2: { x: 11.5, y: 40, width: 85, height: 2 },
+            experience3: { x: 11.5, y: 54.9, width: 85, height: 2 },
+            experience4: { x: 11.5, y: 59.2, width: 52.5, height: 1 },
+            experience5: { x: 11.5, y: 61.6, width: 85, height: 2 },
+            experience6: { x: 11.5, y: 67.8, width: 85, height: 2 },
+            experience7: { x: 11.5, y: 72.2, width: 68.2, height: 1 },
+            experience8: { x: 11.5, y: 21.7, width: 76, height: 1 },
+            experience9: { x: 11.5, y: 22.8, width: 85, height: 1 },
+            experience10: { x: 11.5, y: 23.9, width: 85, height: 6.5 }
         };
         
         // Add this to your script to disable internal scrolling
@@ -590,6 +592,7 @@
                     // Position hotspots after page is rendered
                     positionHotspots();
                 });
+                setTimeout(positionHotspots, 100);
             });
         }
 
@@ -692,41 +695,49 @@
                 // Set wrapper height to match all pages
                 const totalHeight = pageInfos.reduce((acc, info) => acc + info.height, 0);
                 document.getElementById('hotspotWrapper').style.height = totalHeight + 'px';
+                setTimeout(positionHotspots, 100);
             });
         }
 
         // Call loadPDF when document is loaded
         window.addEventListener('load', loadPDF);
         function positionHotspots() {
-            if (!window.pdfPageInfo) return; // Wait for PDF info to be available
-            
-            const wrapper = document.getElementById('hotspotWrapper');
+            // Get the PDF viewer and its dimensions
             const pdfViewer = document.getElementById('pdfViewer');
+            const pdfContainer = document.getElementById('pdfContainer');
+            const wrapper = document.getElementById('hotspotWrapper');
+            
+            // Get the current dimensions of the PDF container
+            const containerRect = pdfContainer.getBoundingClientRect();
             
             // Set wrapper to cover the PDF viewer
             wrapper.style.width = '100%';
+            wrapper.style.height = '100%';
             wrapper.style.position = 'absolute';
             wrapper.style.top = '0';
             wrapper.style.left = '0';
             wrapper.style.pointerEvents = 'none';
             
-            // Calculate the total height of all pages
-            const totalHeight = window.pdfPageInfo.reduce((acc, info) => acc + info.height, 0);
-            wrapper.style.height = totalHeight + 'px';
-            
-            // Position each hotspot based on its percentage position
+            // Position each hotspot based on the current PDF dimensions
             for (const [id, position] of Object.entries(hotspotPositions)) {
                 const hotspot = document.getElementById(id);
                 if (hotspot) {
-                    // Calculate vertical position based on PDF height
-                    const yPos = (position.y / 100) * totalHeight;
+                    // Use viewport-relative positioning for consistency
+                    const pageHeight = pdfViewer.offsetHeight;
+                    const pageWidth = pdfViewer.offsetWidth;
+                    
+                    // Calculate the absolute position relative to the container
+                    const xPos = (position.x / 100) * pageWidth;
+                    const yPos = (position.y / 100) * pageHeight;
+                    const width = (position.width / 100) * pageWidth;
+                    const height = (position.height / 100) * pageHeight;
                     
                     // Set the hotspot's position
                     hotspot.style.position = 'absolute';
-                    hotspot.style.left = `${position.x}%`;
+                    hotspot.style.left = `${xPos}px`;
                     hotspot.style.top = `${yPos}px`;
-                    hotspot.style.width = `${position.width}%`;
-                    hotspot.style.height = `${(position.height / 100) * 200}px`; // Adjust height based on content
+                    hotspot.style.width = `${width}px`;
+                    hotspot.style.height = `${height}px`;
                     hotspot.style.pointerEvents = 'auto';
                 }
             }
@@ -736,17 +747,9 @@
         window.addEventListener('resize', positionHotspots);
         // Add this right after your existing event listeners
         window.addEventListener('scroll', function() {
-            // No need for complex repositioning since we're using percentages
-            // Just ensure the container maintains proper relative positioning
-            const pdfContainer = document.getElementById('pdfContainer');
-            if (pdfContainer.style.position !== 'relative') {
-                pdfContainer.style.position = 'relative';
-            }
+            positionHotspots();
         });
-        // Add this after your other event listeners
-        window.addEventListener('scroll', function() {
-            requestAnimationFrame(positionHotspots);
-        });
+
         // Add this to your existing script
         window.addEventListener('load', function() {
             // Give the PDF time to load
@@ -789,15 +792,16 @@
         const modals = document.querySelectorAll('.modal');
         const closeButtons = document.querySelectorAll('.close-modal');
         
-        // Open modal when hotspot is clicked
         document.querySelectorAll('.hotspot').forEach(hotspot => {
-            hotspot.addEventListener('click', () => {
-                const modalId = `${hotspot.id}Modal`;
-                const modal = document.getElementById(modalId);
-                if (modal) {
-                    modal.classList.add('active');
-                }
-            });
+            if (hotspot.id !== 'linkedin' && hotspot.id !== 'email' && hotspot.id !== 'location') {
+                hotspot.addEventListener('click', () => {
+                    const modalId = `${hotspot.id}Modal`;
+                    const modal = document.getElementById(modalId);
+                    if (modal) {
+                        modal.classList.add('active');
+                    }
+                });
+            }
         });
         
         // Close modal when close button is clicked
@@ -893,20 +897,20 @@
         
         document.getElementById('linkedin').addEventListener('click', function(e) {
             e.preventDefault();
-            // Replace with your actual LinkedIn URL
+            e.stopPropagation(); // Stop event bubbling
             window.open('https://www.linkedin.com/in/adi413/', '_blank');
         });
 
         document.getElementById('location').addEventListener('click', function(e) {
             e.preventDefault();
-            // Replace with your actual LinkedIn URL
-            window.open('https://www.linkedin.com/in/adi413/', '_blank');
+            e.stopPropagation(); // Stop event bubbling
+            window.open('https://maps.app.goo.gl/dcgirv9nagqtmJ8t5', '_blank');
         });
 
         document.getElementById('email').addEventListener('click', function(e) {
             e.preventDefault();
-            // Replace with your actual LinkedIn URL
-            window.open('https://www.linkedin.com/in/adi413/', '_blank');
+            e.stopPropagation(); // Stop event bubbling
+            window.open('mailto:aditya.krishna413@gmail.com', '_blank');
         });
 
 
