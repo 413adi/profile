@@ -2,41 +2,39 @@
   <!-- Background -->
   <rect width="64" height="64" rx="6" fill="#000000"/>
   
-  <!-- Define gradients -->
+  <!-- Using defs and linearGradient for the stroke to create a continuous effect -->
   <defs>
+    <!-- For the red wave -->
     <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%"   style="stop-color:#ff0000;stop-opacity:0.1" />
-      <stop offset="25%"  style="stop-color:#ff0000;stop-opacity:0.7" />
+      <stop offset="0%"   style="stop-color:#ff0000;stop-opacity:0.3" />
+      <stop offset="20%"  style="stop-color:#ff0000;stop-opacity:0.6" />
       <stop offset="50%"  style="stop-color:#ff0000;stop-opacity:1" />
-      <stop offset="75%"  style="stop-color:#ff0000;stop-opacity:0.7" />
-      <stop offset="100%" style="stop-color:#ff0000;stop-opacity:0.1" />
+      <stop offset="80%"  style="stop-color:#ff0000;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#ff0000;stop-opacity:0.3" />
     </linearGradient>
     
+    <!-- For the white wave -->
     <linearGradient id="whiteGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%"   style="stop-color:#ffffff;stop-opacity:0.1" />
-      <stop offset="25%"  style="stop-color:#ffffff;stop-opacity:0.7" />
+      <stop offset="0%"   style="stop-color:#ffffff;stop-opacity:0.3" />
+      <stop offset="20%"  style="stop-color:#ffffff;stop-opacity:0.6" />
       <stop offset="50%"  style="stop-color:#ffffff;stop-opacity:1" />
-      <stop offset="75%"  style="stop-color:#ffffff;stop-opacity:0.7" />
-      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.1" />
+      <stop offset="80%"  style="stop-color:#ffffff;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.3" />
     </linearGradient>
   </defs>
+  <g transform="rotate(135, 32, 32)">
+  <!-- Red wave with larger amplitude using gradient -->
+  <path d="M8,32 Q16,15 24,32 Q32,49 40,32 Q48,15 56,32" 
+        stroke="url(#redGradient)" 
+        stroke-width="4" 
+        fill="none" 
+        stroke-linecap="round"/>
   
-  <!-- Red wave (larger amplitude) -->
-  <!-- Use a filled area with custom shape to simulate a line that varies in thickness -->
-  <path d="M4,32 
-           C4,32 12,15 32,32 
-           C52,49 60,32 60,32
-           
-           C60,34 52,55 32,34
-           C12,13 4,34 4,32 Z" 
-        fill="url(#redGradient)"/>
-  
-  <!-- White wave (smaller amplitude) -->
-  <path d="M4,32 
-           C4,32 12,22 32,32 
-           C52,42 60,32 60,32
-           
-           C60,33 52,45 32,33
-           C12,21 4,33 4,32 Z" 
-        fill="url(#whiteGradient)"/>
+  <!-- White wave with smaller amplitude using gradient -->
+  <path d="M8,32 Q16,22 24,32 Q32,42 40,32 Q48,22 56,32" 
+        stroke="url(#whiteGradient)" 
+        stroke-width="3" 
+        fill="none" 
+        stroke-linecap="round"/>
+  </g>
 </svg>
