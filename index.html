@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aditya Krishna Resume</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <style>
         * {
             margin: 0;
@@ -392,7 +393,35 @@
                 max-width: 40%; /* Limit maximum width on small screens */
             }
         }
+        
+        .download-button-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin: 20px 0 30px 0;
+        }
 
+        .download-button {
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-family: "Times New Roman", Times, serif;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .download-button:hover {
+            background-color: #003d82;
+        }
+
+        .download-button:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -446,6 +475,9 @@
                 </div>
                 
             </div>
+        </div>
+        <div class="download-button-container">
+            <a href="Resume_AdityaKrishna_WithQR.pdf" download="Resume_AdityaKrishna.pdf" class="download-button" id="downloadPdfButton">Download Resume PDF</a>
         </div>
     </div>
     
@@ -864,6 +896,7 @@
             setTimeout(checkDeviceAndOrientation, 500);
             setTimeout(checkDeviceAndOrientation, 1000);
             setTimeout(checkDeviceAndOrientation, 2000);
+            
         });
 
         // Consolidate resize event listener with debouncing
@@ -1196,6 +1229,27 @@
                 timeout = setTimeout(() => func.apply(context, args), wait);
             };
         }
+
+        // Add event listener for the download button
+        document.addEventListener('DOMContentLoaded', function() {
+            const downloadButton = document.getElementById('downloadPdfButton');
+            if (downloadButton) {
+                downloadButton.addEventListener('click', function() {
+                    // Store the original background color
+                    const originalBgColor = this.style.backgroundColor;
+                    
+                    // Visual feedback
+                    this.textContent = "Downloading...";
+                    this.style.backgroundColor = "#004080";
+                    
+                    // Reset button after a delay
+                    setTimeout(() => {
+                        this.textContent = "Download Resume PDF";
+                        this.style.backgroundColor = originalBgColor || "#0056b3";
+                    }, 1500);
+                });
+            }
+        });
     </script>
 
 </body>
