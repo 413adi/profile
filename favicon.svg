@@ -4,7 +4,7 @@
   
   <!-- Define gradients -->
   <defs>
-    <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y1="0%">
+    <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%"   style="stop-color:#ff0000;stop-opacity:0.1" />
       <stop offset="25%"  style="stop-color:#ff0000;stop-opacity:0.7" />
       <stop offset="50%"  style="stop-color:#ff0000;stop-opacity:1" />
@@ -12,7 +12,7 @@
       <stop offset="100%" style="stop-color:#ff0000;stop-opacity:0.1" />
     </linearGradient>
     
-    <linearGradient id="whiteGradient" x1="0%" y1="0%" x2="100%" y1="0%">
+    <linearGradient id="whiteGradient" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%"   style="stop-color:#ffffff;stop-opacity:0.1" />
       <stop offset="25%"  style="stop-color:#ffffff;stop-opacity:0.7" />
       <stop offset="50%"  style="stop-color:#ffffff;stop-opacity:1" />
