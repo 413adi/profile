@@ -5,424 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aditya Krishna Resume</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px 0; /* Add some vertical padding */
-            overflow-y: auto;
-        }
-
-        .container {
-            max-width: 850px; /* Limit width for better readability */
-            width: 100%;
-            margin: 0 auto;
-            position: relative;
-        }
-
-        .pdf-container {
-            width: 100%;
-            position: relative;
-            background-color: white;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 30px;
-            overflow: hidden; /* Prevent content from spilling out */
-        }
-
-        .pdf-page {
-            width: 100%;
-            height: auto;
-        }
-
-        .pdf-pages-container {
-            width: 100%;
-            background-color: white;
-            padding: 10px;
-        }
-
-        .pdf-page-div {
-            width: 100%;
-            margin-bottom: 15px;
-            border: 1px solid #eee;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            display: flex;
-            justify-content: center;
-            overflow: hidden; /* Prevent any overflow */
-        }
-
-        canvas {
-            max-width: 100%;
-            height: auto !important; /* Force height to auto to maintain aspect ratio */
-            display: block;
-            border-radius: 2px;
-        }
-        
-        .hotspot {
-            position: absolute;
-            background-color: rgba(0, 123, 255, 0.08);
-            border: 2px dashed rgba(0, 123, 255, 0.0);
-            border-radius: 4px;
-            cursor: pointer;
-            transition: none; /* Remove the transition effect */
-            pointer-events: auto;
-        }
-
-        .hotspot:hover {
-            background-color: rgba(0, 123, 255, 0.2);
-            border: 2px dashed rgba(0, 123, 255, 0);
-
-        }
-
-        .hotspot:active {
-            background-color: rgba(0, 123, 255, 0.25);
-            border: 2px solid rgba(0, 123, 255, 0.6);
-        }
-
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-        
-        .modal.active {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .modal-content {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 8px;
-            max-width: 700px;
-            width: 90%;
-            max-height: 200vh;
-            overflow-y: auto;
-            position: relative;
-            transform: scale(0.8);
-            transition: transform 0.3s ease;
-            font-family: "Times New Roman", Times, serif; /* Added Times New Roman font */
-        }
-        
-        .modal.active .modal-content {
-            transform: scale(1);
-        }
-        
-        .close-modal {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #777;
-            transition: color 0.3s ease;
-        }
-        
-        .close-modal:hover {
-            color: #333;
-        }
-        
-        .modal-title {
-            margin-bottom: 1rem;
-            color: #0056b3;
-            font-size: 1.5rem;
-        }
-        
-        .modal-body p {
-            margin-bottom: 1rem;
-            line-height: 1.6;
-        }
-        
-        .modal-body ul {
-            margin-left: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .modal-body li {
-            margin-bottom: 0.5rem;
-        }
-        
-        #linkedin {
-            background-color: transparent;
-            border: transparent;
-        }
-
-        #linkedin:hover {
-            background-color: rgba(0, 123, 255, 0.1); /* Optional: slight highlight on hover */
-        }
-
-        #email {
-            background-color: transparent;
-            border: none;
-        }
-
-        #email:hover {
-            background-color: rgba(0, 123, 255, 0.1); /* Optional: slight highlight on hover */
-        }
-        
-        #location {
-            background-color: transparent;
-            border: none;
-        }
-
-        #location:hover {
-            background-color: rgba(0, 123, 255, 0.1); /* Optional: slight highlight on hover */
-        }
-
-        .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-        
-        .gallery-img {
-            width: 100%;
-            height: auto;
-            border-radius: 4px;
-            transition: transform 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .gallery-img:hover {
-            transform: scale(1.05);
-        }
-        
-        .tooltip {
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #333;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            font-size: 0.875rem;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            pointer-events: none;
-            z-index: 100;
-            white-space: nowrap;
-        }
-
-        .hotspot:hover .tooltip {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .single-image-container {
-            display: inline-flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 20px;
-            width: 100%;
-        }
-
-        .modal-img {
-            /* Maximum dimensions - will constrain both width and height */
-            max-width: 90%; /* Percentage of the modal-content width */
-            max-height: 300px; /* Fixed maximum height */
-            
-            /* Make sure image maintains aspect ratio */
-            width: auto;
-            height: auto;
-            
-            /* Styling */
-            object-fit: contain; /* Ensures entire image is visible */
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .image-description {
-            margin-top: 10px;
-            color: #666;
-            text-align: center;
-            width: 90%;
-            font-style: normal; /* Changed from italic to normal */
-        }
-
-        /* For responsiveness - adjust hotspot positions based on screen size */
-        @media (max-width: 768px) {
-            .container {
-                margin: 1rem auto;
-            }
-            
-            .modal-content {
-                padding: 1.5rem;
-                width: 95%;
-            }
-
-            .instruction-box {
-                font-size: 12px; /* Smaller font on medium screens */
-                padding: 6px 10px;
-                top: 5px;
-                right: 5px;
-            }
-        }
-        
-        /* Define control panel for editing mode */
-        .control-panel {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background-color: white;
-            padding: 1rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            z-index: 900;
-            display: none;
-        }
-        
-        .control-panel.active {
-            display: block;
-        }
-        
-        .control-panel button {
-            margin-bottom: 0.5rem;
-            padding: 0.5rem 1rem;
-            background-color: #0056b3;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        
-        .control-panel button:hover {
-            background-color: #003d82;
-        }
-        
-        .control-panel input {
-            margin-bottom: 0.5rem;
-            padding: 0.5rem;
-            width: 100%;
-        }
-        
-        .control-panel select {
-            margin-bottom: 0.5rem;
-            padding: 0.5rem;
-            width: 100%;
-        }
-
-        .hotspot-wrapper {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: auto;
-            z-index: 10;
-            font-family: "Times New Roman", Times, serif;
-        }
-
-        @media (max-width: 768px) and (orientation: portrait) {
-            /* Additional styles for portrait mode on small screens */
-            .container {
-                padding: 0 10px;
-            }
-            
-            .instruction-box {
-                font-size: calc(9px + 0.4vw); /* Slightly smaller on medium screens */
-            }
-            /* Style for the orientation message */
-            #orientationMessage {
-                animation: pulse 2s infinite;
-            }
-            
-            @keyframes pulse {
-                0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4); }
-                70% { box-shadow: 0 0 0 10px rgba(0, 123, 255, 0); }
-                100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
-            }
-        }
-
-        .instruction-box {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: rgba(0, 123, 255, 0.08);
-            border: 2px dashed rgba(0, 123, 255, 0.0);
-            color: #333;
-            padding: 8px 12px;
-            border-radius: 4px;
-            /* Replace the viewport-based calculation with em units */
-            font-size: 1em; /* Base size that will be scaled in JavaScript */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            z-index: 900;
-            pointer-events: none;
-            transition: none;
-            font-family: "Times New Roman", Times, serif;
-        }
-
-        .instruction-box:hover {
-            background-color: rgba(0, 123, 255, 0.2);
-            border: 2px dashed rgba(0, 123, 255, 0);
-        }
-
-        @media (max-width: 480px) {
-            .instruction-box {
-                font-size: calc(8px + 0.3vw); /* Even smaller on small screens */
-                padding: 4px 8px;
-                top: 3px;
-                right: 3px;
-                width: auto; /* Allow it to shrink based on content */
-                max-width: 40%; /* Limit maximum width on small screens */
-            }
-        }
-        
-        .download-button-container {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            margin: 20px 0 30px 0;
-        }
-
-        .download-button {
-            background-color: #0056b3;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 12px 24px;
-            font-size: 16px;
-            font-family: "Times New Roman", Times, serif;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .download-button:hover {
-            background-color: #003d82;
-        }
-
-        .download-button:active {
-            transform: translateY(1px);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
 </head>
 <body>
     <div class="container">
@@ -459,14 +43,17 @@
                 <div class="hotspot" id="experience5">
                 </div>
 
+                <div class="hotspot" id="experience51">
+                </div>
+
                 <div class="hotspot" id="experience6">
                 </div>
 
                 <div class="hotspot" id="experience7">
                 </div>
 
-                <div class="hotspot" id="experience8">
-                </div>
+                <!-- <div class="hotspot" id="experience8">
+                </div> -->
 
                 <div class="hotspot" id="experience9">
                 </div>
@@ -478,6 +65,7 @@
         </div>
         <div class="download-button-container">
             <a href="Resume_AdityaKrishna_WithQR.pdf" download="Resume_AdityaKrishna.pdf" class="download-button" id="downloadPdfButton">Download Resume PDF</a>
+            <a href="https://413adi.github.io/Holiday-Explorer/" target="_blank" class="visit-button" id="visitButton">If you like to travel, check out the website I created and maintain.</a>
         </div>
     </div>
     
@@ -497,7 +85,7 @@
             <div class="modal-body">
                 <div class="single-image-container">
                     <img src="AcousticCrossTalkBaker.png" alt="Acoustic Cross Talk Phased Array" class="modal-img">
-                    <p class="image-description">Simulation tool showing the different paths the central beam of an acoustic signal can take from one element to others after multiple reflections within the pipe wall and between the pipe and the array head</p>
+                    <p class="image-description">Simulation tool visualizing multiple reflection paths of the central acoustic beam between array elements and the pipe wall.</p>
                 </div>
             </div>
         </div>
@@ -509,7 +97,7 @@
             <div class="modal-body">
                 <div class="single-image-container">
                     <img src="DefectRecognitionBaker.png" alt="Defect detection and recognition" class="modal-img">
-                    <p class="image-description">Created an algorithm that detects defect signals from multiple reflections and avoids noise signals</p>
+                    <p class="image-description">Developed an algorithm to isolate and classify defect signals, suppressing noise and enhancing signal clarity across multiple propagation paths.</p>
                 </div>
             </div>
         </div>
@@ -521,7 +109,7 @@
             <div class="modal-body">
                 <div class="single-image-container">
                     <img src="ModelForGuidedWaves.png" alt="Model for guided waves" class="modal-img">
-                    <p class="image-description">Created a numerical simulation tool that can simulate guided wave propagation in cylinders based on computations in the Fourier and Laplace domains</p>
+                    <p class="image-description">Numerical simulation tool for guided wave propagation in cylindrical structures in the Fourier and Laplace domains.</p>
                 </div>
             </div>
         </div>
@@ -533,7 +121,7 @@
             <div class="modal-body">
                 <div class="single-image-container">
                     <img src="TestRig2.jpg" alt="Test rig" class="modal-img">
-                    <p class="image-description">A custom designed and 3D printed part to space sensors to generate and receive guided waves</p>
+                    <p class="image-description">Designed and 3D-printed a custom sensor fixture to precisely position transducers for guided wave generation and reception.</p>
                 </div>
             </div>
         </div>
@@ -545,7 +133,19 @@
             <div class="modal-body">
                 <div class="single-image-container">
                     <img src="Simulation.gif" alt="Simulation" class="modal-img">
-                    <p class="image-description">Animation showing the process of topological imaging, incident field is reversed, differacted fields are transmitted normally and the correlation of the two enables the localization of the defect</p>
+                    <p class="image-description">Developed a simulation tool and imaging technique where incident wavefields are time-reversed and scattered fields propagate forward; their correlation enables defect localization.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="experience51Modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-body">
+                <div class="single-image-container">
+                    <img src="SmallHiddenDefects.png" alt="Imaging" class="modal-img">
+                    <p class="image-description">Advanced baseline subtraction technique enabling detection of both minute defects (left) and flaws hidden behind structural obstacles (right), enhancing structural health monitoring capabilities.</p>
                 </div>
             </div>
         </div>
@@ -557,7 +157,7 @@
             <div class="modal-body">
                 <div class="single-image-container">
                     <img src="ModalAnalysis.png" alt="Modal Analysis" class="modal-img">
-                    <p class="image-description">Image on the left shows how resonance frequencies of the system change due to icing and the image on the right shows Ansys simulations of the various modes of the plate to determine the ideal frequency to deice it</p>
+                    <p class="image-description">Investigated icing effects by analyzing shifts in resonance frequencies (left), and used ANSYS simulations (right) to identify optimal vibrational modes and frequencies for efficient de-icing.</p>
                 </div>
             </div>
         </div>
@@ -569,7 +169,7 @@
             <div class="modal-body">
                 <div class="single-image-container">
                     <img src="Deicing.png" alt="Deicing" class="modal-img">
-                    <p class="image-description">Deicing of the plate matching what was expected in the simulations</p>
+                    <p class="image-description">Experimental de-icing results align with simulation predictions, validating the selected mode shapes and frequencies for effective ice removal.</p>
                 </div>
             </div>
         </div>
@@ -581,7 +181,7 @@
             <div class="modal-body">
                 <div class="single-image-container">
                     <img src="LeakDetection.png" alt="Leak detection" class="modal-img">
-                    <p class="image-description">Image demonstrating the concept of leak detection based on measurements before, on and after the valve</p>
+                    <p class="image-description">Conceptual image illustrating leak detection using acoustic measurements taken before, on, and after the valve.</p>
                 </div>
             </div>
         </div>
@@ -592,8 +192,8 @@
             <span class="close-modal">&times;</span>
             <div class="modal-body">
                 <div class="single-image-container">
-                    <img src="Denoising.png" alt="Denoising" class="modal-img">
-                    <p class="image-description">Image on the left shows wavelet based denoising and the ones on the right show how transient noise is relatively unaffected but impulse noise is largely denoised (blue vs orange)</p>
+                    <img src="WaveletDenoising.png" alt="Denoising" class="modal-img">
+                    <p class="image-description">Applied wavelet-based denoising that selectively removes impulsive noise while preserving gradual transient signals, optimizing signal clarity without losing critical data.</p>
                 </div>
             </div>
         </div>
@@ -604,8 +204,8 @@
             <span class="close-modal">&times;</span>
             <div class="modal-body">
                 <div class="single-image-container">
-                    <img src="SteanTrapCavTherm.png" alt="" class="modal-img">
-                    <p class="image-description">Images showing the steam trap use case, cavitation tests to match AE with standard cavitation measurements and thermal camera measurements</p>
+                    <img src="SteamTrapCavTherm.jpg" alt="" class="modal-img">
+                    <p class="image-description">Deployed mobile solution for steam trap monitoring with acoustic diagnostics. Assessed thermal imaging and cavitation detection technologies for expanded condition monitoring applications.</p>
                 </div>
             </div>
         </div>
@@ -613,644 +213,6 @@
     
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-    <script>
-        // Initial hotspot positions - these would be configured based on your PDF layout
-        // Using percentages for responsive positioning
-        const hotspotPositions = {
-            instructionBox: { x: 78, y: 4, width: 16, height: 4 },
-            experience1: { x: 11.5, y: 38.9, width: 75, height: 1 },
-            experience2: { x: 11.5, y: 40, width: 85, height: 2 },
-            experience3: { x: 11.5, y: 54.9, width: 85, height: 2 },
-            experience4: { x: 11.5, y: 59.2, width: 52.5, height: 1 },
-            experience5: { x: 11.5, y: 61.6, width: 85, height: 2 },
-            experience6: { x: 11.5, y: 67.8, width: 85, height: 2 },
-            experience7: { x: 11.5, y: 72.2, width: 68.2, height: 1 },
-            experience8: { x: 11.5, y: 21.7, width: 76, height: 1 },
-            experience9: { x: 11.5, y: 22.8, width: 85, height: 1 },
-            experience10: { x: 11.5, y: 26, width: 85, height: 4.5 }
-        };
-        
-        // Add this to your script to disable internal scrolling
-        // In your positionHotspots function, adjust to handle scrolling
-        // Replace your current positionHotspots function with this one
-        // Initialize PDF.js worker
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-
-        // Load the PDF
-        let pdfDoc = null;
-        let pageNum = 1;
-        let pageRendering = false;
-        let pageNumPending = null;
-        // Replace the fixed scale
-        // const scale = 2.0;
-
-        // With a dynamic scale calculation
-        function calculateScale() {
-            const pdfContainer = document.getElementById('pdfContainer');
-            const containerWidth = pdfContainer.clientWidth - 30; // Account for padding
-            
-            // Use a higher minimum scale for better clarity
-            // This ensures text remains readable
-            return Math.max(1.5, containerWidth / 600); // Adjusted from 800 to 600 for better quality
-        }
-
-        const scale = calculateScale();
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const pdfViewer = document.getElementById('pdfViewer');
-        pdfViewer.appendChild(canvas);
-
-        // Render a specific page of the PDF
-        function renderPage(num) {
-            pageRendering = true;
-            
-            // Get the page
-            pdfDoc.getPage(num).then(function(page) {
-                const viewport = page.getViewport({ scale: scale });
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-                
-                // Render PDF page into canvas context
-                const renderContext = {
-                    canvasContext: ctx,
-                    viewport: viewport
-                };
-                
-                const renderTask = page.render(renderContext);
-                
-                // Wait for rendering to finish
-                renderTask.promise.then(function() {
-                    pageRendering = false;
-                    
-                    if (pageNumPending !== null) {
-                        // New page rendering is pending
-                        renderPage(pageNumPending);
-                        pageNumPending = null;
-                    }
-                    
-                    // Position hotspots after page is rendered
-                    positionHotspots();
-                });
-                setTimeout(positionHotspots, 100);
-            });
-        }
-
-        // Load and render the PDF
-        function loadPDF() {
-            pdfjsLib.getDocument('Resume_AdityaKrishna.pdf').promise.then(function(pdf) {
-                pdfDoc = pdf;
-                
-                // Initial page render
-                renderPage(1);
-                
-                // Render all pages for scrolling
-                renderAllPages(pdf);
-            });
-        }
-
-        // Render all pages of the PDF for scrolling
-        function renderAllPages(pdf) {
-            const pdfContainer = document.getElementById('pdfViewer');
-            pdfContainer.innerHTML = ''; // Clear any existing content
-            
-            // Get total page count
-            const numPages = pdf.numPages;
-            
-            // Create a container to hold all pages
-            const pagesContainer = document.createElement('div');
-            pagesContainer.className = 'pdf-pages-container';
-            pdfContainer.appendChild(pagesContainer);
-            
-            // Function to render a specific page
-            function renderPageToContainer(pageNum) {
-                return pdf.getPage(pageNum).then(function(page) {
-                    const pdfContainer = document.getElementById('pdfContainer');
-                    const containerWidth = pdfContainer.clientWidth - 50;
-                    
-                    // Get original page dimensions
-                    const originalViewport = page.getViewport({ scale: 1.0 });
-                    const originalAspectRatio = originalViewport.width / originalViewport.height;
-                    
-                    // Calculate scale to fit container width
-                    const widthScale = containerWidth / originalViewport.width;
-                    
-                    // Use a minimum scale of 1.5 for clarity, but respect aspect ratio
-                    const scaleFactor = Math.max(1.5, widthScale);
-                    const displayViewport = page.getViewport({ scale: scaleFactor });
-                    
-                    // Create div for this page
-                    const pageDiv = document.createElement('div');
-                    pageDiv.className = 'pdf-page-div';
-                    pageDiv.setAttribute('data-page-number', pageNum);
-                    pageDiv.style.position = 'relative';
-                    
-                    // Create canvas for this page
-                    const pageCanvas = document.createElement('canvas');
-                    
-                    // Set dimensions maintaining aspect ratio
-                    const pixelRatio = window.devicePixelRatio || 1;
-                    pageCanvas.width = displayViewport.width * pixelRatio;
-                    pageCanvas.height = displayViewport.height * pixelRatio;
-                    pageCanvas.style.width = '100%'; // Make it responsive to container
-                    pageCanvas.style.height = 'auto'; // Maintain aspect ratio
-                    
-                    const context = pageCanvas.getContext('2d');
-                    context.scale(pixelRatio, pixelRatio);
-                    
-                    pageDiv.appendChild(pageCanvas);
-                    pagesContainer.appendChild(pageDiv);
-                    
-                    // Render with improved quality
-                    const renderContext = {
-                        canvasContext: context,
-                        viewport: displayViewport,
-                        renderInteractiveForms: true
-                    };
-                    
-                    return page.render(renderContext).promise.then(() => {
-                        return { 
-                            pageNum, 
-                            height: displayViewport.height, 
-                            width: displayViewport.width 
-                        };
-                    });
-                });
-            }
-            
-            // Render all pages
-            const renderPromises = [];
-            for (let i = 1; i <= numPages; i++) {
-                renderPromises.push(renderPageToContainer(i));
-            }
-            
-            // After all pages are rendered, position hotspots
-            Promise.all(renderPromises).then(pageInfos => {
-                // Store page dimensions for hotspot positioning
-                window.pdfPageInfo = pageInfos;
-                
-                // Position hotspots
-                positionHotspots();
-                
-                // Set wrapper height to match all pages
-                const totalHeight = pageInfos.reduce((acc, info) => acc + info.height, 0);
-                document.getElementById('hotspotWrapper').style.height = totalHeight + 'px';
-                setTimeout(positionHotspots, 100);
-            });
-        }
-
-        // Call loadPDF when document is loaded
-        window.addEventListener('load', loadPDF);
-        function positionHotspots() {
-            // Get the PDF viewer and its dimensions
-            const pdfViewer = document.getElementById('pdfViewer');
-            const pdfContainer = document.getElementById('pdfContainer');
-            const wrapper = document.getElementById('hotspotWrapper');
-            
-            // Get the current dimensions of the PDF container
-            const containerRect = pdfContainer.getBoundingClientRect();
-            
-            // Set wrapper to cover the PDF viewer
-            wrapper.style.width = '100%';
-            wrapper.style.height = '100%';
-            wrapper.style.position = 'absolute';
-            wrapper.style.top = '0';
-            wrapper.style.left = '0';
-            wrapper.style.pointerEvents = 'none';
-            
-            // Position each hotspot based on the current PDF dimensions
-            for (const [id, position] of Object.entries(hotspotPositions)) {
-                const hotspot = document.getElementById(id);
-                if (hotspot) {
-                    // Use viewport-relative positioning for consistency
-                    const pageHeight = pdfViewer.offsetHeight;
-                    const pageWidth = pdfViewer.offsetWidth;
-                    
-                    // Calculate the absolute position relative to the container
-                    const xPos = (position.x / 100) * pageWidth;
-                    const yPos = (position.y / 100) * pageHeight;
-                    const width = (position.width / 100) * pageWidth;
-                    const height = (position.height / 100) * pageHeight;
-                    
-                    // Set the hotspot's position
-                    hotspot.style.position = 'absolute';
-                    hotspot.style.left = `${xPos}px`;
-                    hotspot.style.top = `${yPos}px`;
-                    hotspot.style.width = `${width}px`;
-                    hotspot.style.height = `${height}px`;
-                    hotspot.style.pointerEvents = 'auto';
-                }
-            }
-
-            if (instructionBox) {
-                // Base positioning from hotspotPositions
-                const position = hotspotPositions.instructionBox;
-                const pageHeight = pdfViewer.offsetHeight;
-                const pageWidth = pdfViewer.offsetWidth;
-                
-                // Calculate the absolute position relative to the container
-                let xPos = (position.x / 100) * pageWidth;
-                let yPos = (position.y / 100) * pageHeight;
-                let width = (position.width / 100) * pageWidth;
-                let height = (position.height / 100) * pageHeight;
-                
-                // Calculate font size based on PDF width
-                let fontSize = Math.max(8, Math.min(16, pageWidth * 0.018)); // 1.8% of PDF width, min 8px, max 16px
-                
-                // Set the hotspot's position and font size
-                instructionBox.style.position = 'absolute';
-                instructionBox.style.left = `${xPos}px`;
-                instructionBox.style.top = `${yPos}px`;
-                instructionBox.style.width = `${width}px`;
-                instructionBox.style.height = `${height}px`;
-                instructionBox.style.fontSize = `${fontSize}px`;
-                
-                // Adjust padding based on font size
-                let padding = Math.max(4, fontSize * 0.5);
-                instructionBox.style.padding = `${padding}px ${padding * 1.5}px`;
-            }
-        }
-        // Position hotspots on load and window resize
-        window.addEventListener('load', positionHotspots);
-        window.addEventListener('resize', positionHotspots);
-        // Add this right after your existing event listeners
-        window.addEventListener('scroll', function() {
-            positionHotspots();
-        });
-
-        // Add this to your existing script
-        // Consolidate window load event listeners
-        window.addEventListener('load', function() {
-            loadPDF();
-            positionHotspots();
-            enableScrolling();
-            checkDeviceAndOrientation();
-            
-            // Set appropriate initial height for wrapper with delay
-            setTimeout(function() {
-                const wrapper = document.getElementById('hotspotWrapper');
-                wrapper.style.height = "1500px";
-                positionHotspots();
-            }, 1000);
-            
-            // Check orientation after delays
-            setTimeout(checkDeviceAndOrientation, 500);
-            setTimeout(checkDeviceAndOrientation, 1000);
-            setTimeout(checkDeviceAndOrientation, 2000);
-            
-        });
-
-        // Consolidate resize event listener with debouncing
-        window.addEventListener('resize', debounce(function() {
-            positionHotspots();
-            checkDeviceAndOrientation();
-        }, 100));
-
-        // Consolidate orientation change listener
-        window.addEventListener('orientationchange', function() {
-            setTimeout(checkDeviceAndOrientation, 200);
-        });
-
-        // Consolidate scroll event listener
-        window.addEventListener('scroll', debounce(function() {
-            positionHotspots();
-        }, 100));
-        // Add this function to restore scrolling functionality
-        function enableScrolling() {
-            document.querySelectorAll('.hotspot').forEach(hotspot => {
-                hotspot.addEventListener('click', function(e) {
-                    // Prevent any default behavior that might interfere with scrolling
-                    e.stopPropagation();
-                    
-                    // Open the modal
-                    const modalId = `${this.id}Modal`;
-                    const modal = document.getElementById(modalId);
-                    if (modal) {
-                        modal.classList.add('active');
-                    }
-                    
-                    // Ensure scrolling is still enabled
-                    document.body.style.overflow = 'auto';
-                    document.documentElement.style.overflow = 'auto';
-                });
-            });
-        }
-
-        // Call this function after the document loads
-        window.addEventListener('load', enableScrolling);
-        // Set up modal functionality
-        const modals = document.querySelectorAll('.modal');
-        const closeButtons = document.querySelectorAll('.close-modal');
-        
-        document.querySelectorAll('.hotspot').forEach(hotspot => {
-            if (hotspot.id !== 'linkedin' && hotspot.id !== 'email' && hotspot.id !== 'location') {
-                hotspot.addEventListener('click', () => {
-                    const modalId = `${hotspot.id}Modal`;
-                    const modal = document.getElementById(modalId);
-                    if (modal) {
-                        modal.classList.add('active');
-                    }
-                });
-            }
-        });
-        
-        // Close modal when close button is clicked
-        closeButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                button.closest('.modal').classList.remove('active');
-                // Restore scrolling
-                document.body.style.overflow = 'auto';
-                document.documentElement.style.overflow = 'auto';
-            });
-        });
-
-        
-        // Close modal when clicking outside of modal content
-        modals.forEach(modal => {
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    modal.classList.remove('active');
-                    // Restore scrolling
-                    document.body.style.overflow = 'auto';
-                    document.documentElement.style.overflow = 'auto';
-                }
-            });
-        });
-        
-        // Close modal when Escape key is pressed
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                modals.forEach(modal => {
-                    modal.classList.remove('active');
-                });
-            }
-        });
-        
-        // Handle form submission (just for demonstration)
-        const contactForm = document.getElementById('contactForm');
-        if (contactForm) {
-            contactForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                alert('Thank you for your message! This is a demo form - in a real website, this would send an email.');
-                contactForm.reset();
-                document.getElementById('contactModal').classList.remove('active');
-            });
-        }
-        
-        // Edit mode functionality
-        let editMode = false;
-        const editModeKeyCode = 'KeyE'; // Press 'e' key + Ctrl to toggle edit mode
-        
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.code === editModeKeyCode) {
-                toggleEditMode();
-            }
-        });
-        
-        function toggleEditMode() {
-            editMode = !editMode;
-            const controlPanel = document.getElementById('controlPanel');
-            
-            if (editMode) {
-                controlPanel.classList.add('active');
-                document.querySelectorAll('.hotspot').forEach(hotspot => {
-                    hotspot.style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
-                    hotspot.style.border = '2px dashed rgba(255, 0, 0, 0.8)';
-                });
-                loadHotspotEditor();
-            } else {
-                controlPanel.classList.remove('active');
-                document.querySelectorAll('.hotspot').forEach(hotspot => {
-                    hotspot.style.backgroundColor = '';
-                    hotspot.style.border = '';
-                });
-            }
-        }
-        
-        document.getElementById('saveHotspot').addEventListener('click', () => {
-            
-            if (hotspotPositions[hotspotId]) {
-                hotspotPositions[hotspotId] = { x, y, width, height };
-                positionHotspots();
-                
-                // In a real application, you might want to save this to localStorage or a database
-                console.log('Updated hotspot positions:', hotspotPositions);
-                
-                alert(`Hotspot "${hotspotId}" updated successfully!`);
-            }
-        });
-        
-        document.getElementById('linkedin').addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation(); // Stop event bubbling
-            window.open('https://www.linkedin.com/in/adi413/', '_blank');
-        });
-
-        document.getElementById('location').addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation(); // Stop event bubbling
-            window.open('https://maps.app.goo.gl/dcgirv9nagqtmJ8t5', '_blank');
-        });
-
-        document.getElementById('email').addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation(); // Stop event bubbling
-            window.open('mailto:aditya.krishna413@gmail.com', '_blank');
-        });
-
-
-        // Export hotspot positions (for saving configuration)
-        function exportHotspotPositions() {
-            return JSON.stringify(hotspotPositions);
-        }
-        
-        // Import hotspot positions (for loading saved configuration)
-        function importHotspotPositions(positionsJson) {
-            try {
-                const positions = JSON.parse(positionsJson);
-                Object.assign(hotspotPositions, positions);
-                positionHotspots();
-                return true;
-            } catch (e) {
-                console.error('Failed to import hotspot positions:', e);
-                return false;
-            }
-        }
-
-        // Also check on resize and orientation change
-        window.addEventListener('resize', checkOrientation);
-        window.addEventListener('orientationchange', function() {
-            // Check multiple times after orientation change
-            setTimeout(checkOrientation, 100);
-            setTimeout(checkOrientation, 500);
-            setTimeout(checkOrientation, 1000);
-        });
-
-        // Add this function to your JavaScript
-        function checkDeviceAndOrientation() {
-            const container = document.getElementById('pdfContainer');
-            const hotspotWrapper = document.getElementById('hotspotWrapper');
-            const windowWidth = window.innerWidth;
-            
-            // Check if screen width is below threshold (850px as you suggested)
-            if (windowWidth < 850) {
-                // Hide hotspots
-                hotspotWrapper.style.display = 'none';
-                
-                // Check if in portrait mode on mobile (width < height)
-                if (window.innerWidth < window.innerHeight) {
-                    // Show landscape mode message if it doesn't exist yet
-                    if (!document.getElementById('landscapeMessage')) {
-                        createLandscapeMessage();
-                    }
-                } else {
-                    // In landscape mode, remove message if it exists
-                    const message = document.getElementById('landscapeMessage');
-                    if (message) {
-                        message.remove();
-                    }
-                    
-                    // Consider showing hotspots in landscape mode if width is adequate
-                    if (windowWidth > 600) { // Minimum width for usable hotspots in landscape
-                        hotspotWrapper.style.display = 'block';
-                    }
-                }
-            } else {
-                // For desktop/larger screens, show hotspots and remove message
-                hotspotWrapper.style.display = 'block';
-                const message = document.getElementById('landscapeMessage');
-                if (message) {
-                    message.remove();
-                }
-            }
-        }
-
-        // Function to create the landscape mode message
-        function createLandscapeMessage() {
-            const messageDiv = document.createElement('div');
-            messageDiv.id = 'landscapeMessage';
-            messageDiv.style.position = 'fixed';
-            messageDiv.style.top = '50%';
-            messageDiv.style.left = '50%';
-            messageDiv.style.transform = 'translate(-50%, -50%)';
-            messageDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
-            messageDiv.style.color = 'white';
-            messageDiv.style.padding = '20px';
-            messageDiv.style.borderRadius = '10px';
-            messageDiv.style.textAlign = 'center';
-            messageDiv.style.zIndex = '1000';
-            messageDiv.style.maxWidth = '80%';
-            messageDiv.style.boxShadow = '0 0 20px rgba(0, 123, 255, 0.5)';
-            
-            // Add pulsing animation
-            messageDiv.style.animation = 'pulse 2s infinite';
-            
-            // Create a style element for the animations
-            const styleElement = document.createElement('style');
-            styleElement.textContent = `
-                @keyframes pulse {
-                    0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); }
-                    70% { box-shadow: 0 0 0 15px rgba(0, 123, 255, 0); }
-                    100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
-                }
-                
-                @keyframes rotatePhone {
-                    0% { transform: rotate(0deg); }
-                    20% { transform: rotate(90deg); }
-                    100% { transform: rotate(90deg); }
-                }
-                
-                @keyframes glow {
-                    0% { background-color: rgba(0, 123, 255, 0.3); }
-                    50% { background-color: rgba(0, 123, 255, 0.7); }
-                    100% { background-color: rgba(0, 123, 255, 0.3); }
-                }
-                
-                .phone-container {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    height: 140px;
-                    margin-bottom: 20px;
-                }
-                
-                .phone {
-                    position: relative;
-                    width: 70px;
-                    height: 120px;
-                    border: 3px solid white;
-                    border-radius: 12px;
-                    background-color: rgba(255, 255, 255, 0.1);
-                    animation: rotatePhone 3s ease-in-out infinite;
-                    transform-origin: center center;
-                }
-                
-                .phone-screen {
-                    position: absolute;
-                    top: 5px;
-                    left: 5px;
-                    right: 5px;
-                    bottom: 5px;
-                    background-color: rgba(0, 123, 255, 0.3);
-                    border-radius: 6px;
-                    animation: glow 3s infinite;
-                    animation-delay: 1s;
-                }
-            `;
-            document.head.appendChild(styleElement);
-            
-            // Add content with the phone animation
-            messageDiv.innerHTML = `
-                <div class="phone-container">
-                    <div class="phone">
-                        <div class="phone-screen"></div>
-                    </div>
-                </div>
-                <h3 style="margin-bottom: 15px; font-size: 18px;">Rotate your device to landscape mode</h3>
-            `;
-            
-            document.body.appendChild(messageDiv);
-        }
-        // Call the function initially
-        window.addEventListener('load', checkDeviceAndOrientation);
-
-        // Call on resize and orientation change
-        window.addEventListener('resize', debounce(checkDeviceAndOrientation, 100));
-        window.addEventListener('orientationchange', function() {
-            // Small delay to allow orientation change to complete
-            setTimeout(checkDeviceAndOrientation, 200);
-        });
-
-        function debounce(func, wait) {
-            let timeout;
-            return function() {
-                const context = this;
-                const args = arguments;
-                clearTimeout(timeout);
-                timeout = setTimeout(() => func.apply(context, args), wait);
-            };
-        }
-
-        // Add event listener for the download button
-        document.addEventListener('DOMContentLoaded', function() {
-            const downloadButton = document.getElementById('downloadPdfButton');
-            if (downloadButton) {
-                downloadButton.addEventListener('click', function() {
-                    // Store the original background color
-                    const originalBgColor = this.style.backgroundColor;
-                    
-                    // Visual feedback
-                    this.textContent = "Downloading...";
-                    this.style.backgroundColor = "#004080";
-                    
-                    // Reset button after a delay
-                    setTimeout(() => {
-                        this.textContent = "Download Resume PDF";
-                        this.style.backgroundColor = originalBgColor || "#0056b3";
-                    }, 1500);
-                });
-            }
-        });
-    </script>
 
 </body>
 </html>
